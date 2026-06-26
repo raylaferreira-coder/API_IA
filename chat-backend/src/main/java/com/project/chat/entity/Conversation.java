@@ -13,8 +13,9 @@ public class Conversation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 36)
-    private String sessionId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "session_id", nullable = false)
+    private Session session;
 
     @Column(nullable = false)
     private String title;
@@ -34,8 +35,8 @@ public class Conversation {
     public Conversation() {
     }
 
-    public Conversation(String sessionId, String title) {
-        this.sessionId = sessionId;
+    public Conversation(Session session, String title) {
+        this.session = session;
         this.title = title;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = this.createdAt;
@@ -50,12 +51,12 @@ public class Conversation {
         this.id = id;
     }
 
-    public String getSessionId() {
-        return sessionId;
+    public Session getSession() {
+        return session;
     }
 
-    public void setSessionId(String sessionId) {
-        this.sessionId = sessionId;
+    public void setSession(Session session) {
+        this.session = session;
     }
 
     public String getTitle() {

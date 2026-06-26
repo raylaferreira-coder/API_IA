@@ -1,6 +1,6 @@
 package com.project.chat.controller;
 
-
+import com.project.chat.dto.response.HealthResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

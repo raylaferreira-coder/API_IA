@@ -2,7 +2,10 @@ package com.project.chat.service;
 
 import com.project.chat.dto.response.SessionResponse;
 import com.project.chat.entity.Session;
+import com.project.chat.exception.ResourceNotFoundException;
 import com.project.chat.repository.SessionRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -10,6 +13,8 @@ import java.util.UUID;
 
 @Service
 public class SessionService {
+
+    private static final Logger log = LoggerFactory.getLogger(SessionService.class);
 
     private final SessionRepository sessionRepository;
 
@@ -21,22 +26,24 @@ public class SessionService {
         String sessionId = UUID.randomUUID().toString();
         Session session = new Session(sessionId);
         session = sessionRepository.save(session);
+        log.info("Nova sessão criada: id={}, sessionId={}", session.getId(), session.getSessionId());
         return toResponse(session);
     }
 
     public SessionResponse getSession(String sessionId) {
-        Session session = sessionRepository.findById(sessionId)
-                .orElseThrow(() -> new com.project.chat.exception.ResourceNotFoundException(
+        Session session = sessionRepository.findBySessionId(sessionId)
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Sessão não encontrada: " + sessionId));
         return toResponse(session);
     }
 
     public void invalidateSession(String sessionId) {
-        Session session = sessionRepository.findById(sessionId)
-                .orElseThrow(() -> new com.project.chat.exception.ResourceNotFoundException(
+        Session session = sessionRepository.findBySessionId(sessionId)
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Sessão não encontrada: " + sessionId));
         session.setExpired(true);
         sessionRepository.save(session);
+        log.info("Sessão invalidada: sessionId={}", sessionId);
     }
 
     public void expireOldSessions(int expirationHours) {
@@ -46,11 +53,14 @@ public class SessionService {
             s.setExpired(true);
             sessionRepository.save(s);
         }
+        if (!oldSessions.isEmpty()) {
+            log.info("{} sessões expiradas por inatividade.", oldSessions.size());
+        }
     }
 
     private SessionResponse toResponse(Session session) {
         return new SessionResponse(
-                session.getId(),
+                session.getSessionId(),
                 session.getCreatedAt(),
                 session.getLastActivity(),
                 session.isExpired()

@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface ConversationRepository extends JpaRepository<Conversation, Long> {
 
-    List<Conversation> findBySessionIdOrderByUpdatedAtDesc(String sessionId);
+    List<Conversation> findBySessionSessionIdOrderByUpdatedAtDesc(String sessionId);
 }

@@ -12,7 +12,7 @@ public class Attachment {
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "message_id", nullable = false)
+    @JoinColumn(name = "message_id", nullable = true)
     private Message message;
 
     @Column(nullable = false)
@@ -33,13 +33,17 @@ public class Attachment {
     public Attachment() {
     }
 
-    public Attachment(Message message, String fileName, String fileType, Long fileSize, String storagePath) {
-        this.message = message;
+    public Attachment(String fileName, String fileType, Long fileSize, String storagePath) {
         this.fileName = fileName;
         this.fileType = fileType;
         this.fileSize = fileSize;
         this.storagePath = storagePath;
         this.uploadedAt = LocalDateTime.now();
+    }
+
+    public Attachment(Message message, String fileName, String fileType, Long fileSize, String storagePath) {
+        this(fileName, fileType, fileSize, storagePath);
+        this.message = message;
     }
 
     public Long getId() {
