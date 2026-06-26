@@ -822,7 +822,7 @@ spring.datasource.hikari.connection-timeout=30000
 
 | Regra | Camada | HTTP | Mensagem |
 |-------|--------|------|----------|
-| `content` nulo ou vazio | Controller (`@NotBlank`) | `400` | "O conteúdo da mensagem não pode estar vazio." |
+| `content` nulo ou vazio | Controller (`@NotBlank`) | `422` | "O conteúdo da mensagem não pode estar vazio." |
 | `content` > 5000 caracteres | Service | `422` | "A mensagem excede o limite de 5000 caracteres." |
 | `sessionId` em formato inválido | Controller | `400` | "O identificador de sessão fornecido é inválido." |
 | `sessionId` não encontrado | Service | `404` | "Sessão não encontrada: {sessionId}" |
