@@ -1,4 +1,4 @@
-# 🤖 Chat Inteligente — Back-end
+# Chat Inteligente — Back-end
 
 <p align="center">
   <img src="https://img.shields.io/badge/Java-17%2B-blue?logo=openjdk" alt="Java 17+">
@@ -14,7 +14,9 @@
 </p>
 
 ---
-
+#Grupo 5
+integrantes: Leonam, Emily, Rayla e Gabriel 
+---
 ## 📋 Sumário
 
 - [Sobre o Projeto](#sobre-o-projeto)
@@ -451,12 +453,6 @@ public class SimulatedChatService implements ChatService { ... }
 - ✅ Troca transparente — Controllers não precisam ser alterados
 - ✅ Baixo acoplamento — Front-end desconhece a implementação
 - ✅ Testabilidade — Mock fácil da interface nos testes
-
----
-
-## 📄 Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
 ---
 
