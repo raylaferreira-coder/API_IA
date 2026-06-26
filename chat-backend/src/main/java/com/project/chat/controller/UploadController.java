@@ -1,5 +1,6 @@
 package com.project.chat.controller;
 
+import com.project.chat.dto.response.UploadResponse;
 import com.project.chat.service.UploadService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

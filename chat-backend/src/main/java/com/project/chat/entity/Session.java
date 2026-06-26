@@ -8,7 +8,11 @@ import java.time.LocalDateTime;
 public class Session {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true, length = 36)
+    private String sessionId;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -22,19 +26,27 @@ public class Session {
     public Session() {
     }
 
-    public Session(String id) {
-        this.id = id;
+    public Session(String sessionId) {
+        this.sessionId = sessionId;
         this.createdAt = LocalDateTime.now();
         this.lastActivity = this.createdAt;
         this.expired = false;
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
     }
 
     public LocalDateTime getCreatedAt() {
