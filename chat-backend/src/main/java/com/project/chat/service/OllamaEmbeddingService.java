@@ -11,9 +11,13 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 public class OllamaEmbeddingService implements EmbeddingService {
@@ -24,6 +28,7 @@ public class OllamaEmbeddingService implements EmbeddingService {
     private final ObjectMapper objectMapper;
     private final String baseUrl;
     private final String model;
+    private final ExecutorService executor;
 
     public OllamaEmbeddingService(
             @Value("${ollama.base-url:http://localhost:11434}") String baseUrl,
@@ -32,6 +37,7 @@ public class OllamaEmbeddingService implements EmbeddingService {
         this.model = model;
         this.httpClient = HttpClient.newHttpClient();
         this.objectMapper = new ObjectMapper();
+        this.executor = Executors.newFixedThreadPool(5);
         log.info("Ollama Embedding Service iniciado: url={}, model={}", baseUrl, model);
     }
 
@@ -42,12 +48,13 @@ public class OllamaEmbeddingService implements EmbeddingService {
 
             Map<String, Object> requestBody = Map.of(
                     "model", model,
-                    "prompt", input
+                    "input", input
             );
 
             String json = objectMapper.writeValueAsString(requestBody);
+            String normalizedUrl = baseUrl.replaceAll("/+$", "") + "/api/embed";
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(baseUrl + "/api/embeddings"))
+                    .uri(URI.create(normalizedUrl))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(json))
                     .build();
@@ -60,8 +67,14 @@ public class OllamaEmbeddingService implements EmbeddingService {
 
             @SuppressWarnings("unchecked")
             Map<String, Object> responseMap = objectMapper.readValue(response.body(), Map.class);
+            if (responseMap == null || !responseMap.containsKey("embedding")) {
+                throw new EmbeddingException("Resposta do Ollama não contém embedding.");
+            }
             @SuppressWarnings("unchecked")
             List<Number> embeddingList = (List<Number>) responseMap.get("embedding");
+            if (embeddingList == null) {
+                throw new EmbeddingException("Lista de embeddings retornada como nula.");
+            }
 
             float[] embedding = new float[embeddingList.size()];
             for (int i = 0; i < embeddingList.size(); i++) {
@@ -78,10 +91,12 @@ public class OllamaEmbeddingService implements EmbeddingService {
 
     @Override
     public List<float[]> generateEmbeddings(List<String> texts) {
-        List<float[]> embeddings = new ArrayList<>();
-        for (String text : texts) {
-            embeddings.add(generateEmbedding(text));
-        }
-        return embeddings;
+        List<CompletableFuture<float[]>> futures = texts.stream()
+                .map(text -> CompletableFuture.supplyAsync(() -> generateEmbedding(text), executor)
+                        .orTimeout(30, TimeUnit.SECONDS))
+                .toList();
+        return futures.stream()
+                .map(CompletableFuture::join)
+                .collect(Collectors.toList());
     }
 }

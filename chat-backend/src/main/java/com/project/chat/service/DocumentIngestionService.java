@@ -40,34 +40,30 @@ public class DocumentIngestionService {
 
     @Transactional
     public Document ingestFromUrl(String url) {
-        Document document = new Document(
-                extrairTituloDaUrl(url),
-                url,
-                "url"
-        );
-        document.setStatus(DocumentStatus.PENDING);
-        document = documentRepository.save(document);
-
         try {
-            document.setStatus(DocumentStatus.PROCESSING);
-            documentRepository.save(document);
-
             String rawText = parserFactory.getParser("url").parse(url);
+            String title = extractTitle(rawText, url);
+
+            Document document = new Document(title, url, "url");
+            document.setStatus(DocumentStatus.PROCESSING);
+            document = documentRepository.save(document);
+
             processDocument(document, rawText);
 
             document.setStatus(DocumentStatus.COMPLETED);
             documentRepository.save(document);
             log.info("Documento processado com sucesso: id={}, url={}", document.getId(), url);
 
+            return document;
+
         } catch (Exception e) {
+            Document document = new Document("Falha ao processar: " + url, url, "url");
             document.setStatus(DocumentStatus.FAILED);
             document.setErrorMessage(e.getMessage());
             documentRepository.save(document);
-            log.error("Falha ao processar documento: id={}, error={}", document.getId(), e.getMessage());
+            log.error("Falha ao processar documento: id={}, url={}, error={}", document.getId(), url, e.getMessage());
             throw new IngestionException("Falha ao ingerir URL: " + e.getMessage(), e);
         }
-
-        return document;
     }
 
     @Transactional
@@ -145,19 +141,14 @@ public class DocumentIngestionService {
         return sb.toString();
     }
 
-    private String extrairTituloDaUrl(String url) {
-        try {
-            return parserFactory.getParser("url").parse(url).lines()
-                    .filter(l -> l.startsWith("Título:"))
-                    .findFirst()
-                    .map(l -> l.replace("Título:", "").trim())
-                    .orElseGet(() -> {
-                        String[] partes = url.split("/");
-                        return partes[partes.length - 1].replaceAll("[-_]", " ");
-                    });
-        } catch (Exception e) {
-            String[] partes = url.split("/");
-            return partes[partes.length - 1].replaceAll("[-_]", " ");
-        }
+    private String extractTitle(String rawText, String url) {
+        return rawText.lines()
+                .filter(l -> l.startsWith("Título:"))
+                .findFirst()
+                .map(l -> l.replace("Título:", "").trim())
+                .orElseGet(() -> {
+                    String[] parts = url.split("/");
+                    return parts[parts.length - 1].replaceAll("[-_]", " ");
+                });
     }
 }

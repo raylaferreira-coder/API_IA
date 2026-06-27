@@ -8,7 +8,6 @@ import com.project.chat.dto.response.IngestionResponse;
 import com.project.chat.dto.response.SearchResultResponse;
 import com.project.chat.entity.Document;
 import com.project.chat.entity.DocumentChunk;
-import com.project.chat.entity.DocumentStatus;
 import com.project.chat.mapper.DocumentMapper;
 import com.project.chat.repository.DocumentRepository;
 import com.project.chat.service.DocumentIngestionService;
@@ -37,11 +36,7 @@ public class DocumentController {
     @PostMapping("/ingest/url")
     public ResponseEntity<IngestionResponse> ingestUrl(@Valid @RequestBody IngestUrlRequest request) {
         Document document = ingestionService.ingestFromUrl(request.getUrl());
-        String message = "URL ingerida com sucesso.";
-        if (document.getStatus() == DocumentStatus.FAILED) {
-            message = "Falha ao ingerir URL: " + document.getErrorMessage();
-        }
-        return ResponseEntity.ok(documentMapper.toIngestionResponse(document, message));
+        return ResponseEntity.ok(documentMapper.toIngestionResponse(document, "URL ingerida com sucesso."));
     }
 
     @GetMapping

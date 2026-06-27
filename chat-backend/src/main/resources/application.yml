@@ -36,5 +36,5 @@ ollama:
 ai:
   agent:
     enabled: true
-    model: gemma4
+    model: llama3.2
     base-url: ${ollama.base-url}

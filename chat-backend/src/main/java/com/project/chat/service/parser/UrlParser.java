@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.net.URI;
+
 @Component
 public class UrlParser implements DocumentParser {
 
@@ -14,9 +16,25 @@ public class UrlParser implements DocumentParser {
 
     @Override
     public String parse(String url) throws Exception {
+        URI uri = URI.create(url);
+        String scheme = uri.getScheme();
+        String host = uri.getHost();
+
+        if (scheme == null || !scheme.matches("https?")) {
+            throw new IllegalArgumentException("URL inválida: apenas HTTP/HTTPS são permitidos. Esquema: " + scheme);
+        }
+        if (host == null || host.isEmpty()) {
+            throw new IllegalArgumentException("URL inválida: host não encontrado.");
+        }
+        if (host.equals("localhost") || host.equals("127.0.0.1") || host.equals("0.0.0.0")
+                || host.startsWith("10.") || host.startsWith("172.16.") || host.startsWith("192.168.")
+                || host.endsWith(".local") || host.endsWith(".internal")) {
+            throw new IllegalArgumentException("URL rejeitada: endereços internos não são permitidos: " + host);
+        }
+
         log.info("Baixando conteúdo da URL: {}", url);
         Document doc = Jsoup.connect(url)
-                .userAgent("Mozilla/5.0 (compatible; MarvelRAG/1.0)")
+                .userAgent("Mozilla/5.0")
                 .timeout(30000)
                 .get();
 

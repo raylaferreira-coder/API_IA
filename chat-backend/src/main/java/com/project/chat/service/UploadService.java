@@ -10,6 +10,7 @@ import com.project.chat.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -32,7 +33,8 @@ public class UploadService {
         this.attachmentMapper = attachmentMapper;
     }
 
-    public UploadResponse uploadFile(MultipartFile file, String sessionId) {
+    @Transactional
+    public UploadResponse uploadFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
             log.warn("Tentativa de upload sem arquivo.");
             throw new IllegalArgumentException("Nenhum arquivo foi enviado.");

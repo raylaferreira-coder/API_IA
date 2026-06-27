@@ -1,11 +1,13 @@
 package com.project.chat.entity;
 
 import jakarta.persistence.*;
-import java.util.Arrays;
+import org.hibernate.annotations.Array;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "document_chunks", indexes = {
-    @Index(name = "idx_chunk_document_id", columnList = "documentId")
+    @Index(name = "idx_chunk_document_id", columnList = "document_id")
 })
 public class DocumentChunk {
 
@@ -22,7 +24,9 @@ public class DocumentChunk {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    @Column(name = "embedding", columnDefinition = "vector(768)")
+    @JdbcTypeCode(SqlTypes.VECTOR)
+    @Array(length = 1536)
+    @Column(name = "embedding")
     private float[] embedding;
 
     @Column(nullable = false)

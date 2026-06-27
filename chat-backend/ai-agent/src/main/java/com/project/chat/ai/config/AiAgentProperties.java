@@ -3,7 +3,7 @@ package com.project.chat.ai.config;
 public class AiAgentProperties {
 
     private String baseUrl = "http://localhost:11434";
-    private String model = "gemma4";
+    private String model = "llama3.2";
     private String embeddingModel = "nomic-embed-text";
     private double temperature = 0.7;
     private int maxTokens = 2048;

@@ -55,18 +55,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body(error);
     }
 
-    @ExceptionHandler(FileCorruptedException.class)
-    public ResponseEntity<ErrorResponse> handleFileCorrupted(FileCorruptedException ex, HttpServletRequest request) {
-        log.warn("Arquivo corrompido: {}", ex.getMessage());
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                "Bad Request",
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-    }
-
     @ExceptionHandler(FileTooLargeException.class)
     public ResponseEntity<ErrorResponse> handleFileTooLarge(FileTooLargeException ex, HttpServletRequest request) {
         log.warn("Arquivo muito grande: {}", ex.getMessage());

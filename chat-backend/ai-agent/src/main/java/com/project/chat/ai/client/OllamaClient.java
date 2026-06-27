@@ -3,10 +3,9 @@ package com.project.chat.ai.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.project.chat.ai.config.AiAgentProperties;
-import com.project.chat.ai.dto.EmbeddingRequest;
-import com.project.chat.ai.dto.EmbeddingResponse;
 import com.project.chat.ai.dto.GenerateRequest;
 import com.project.chat.ai.dto.GenerateResponse;
+import com.project.chat.exception.LlmServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +34,8 @@ public class OllamaClient {
 
     public GenerateResponse generate(GenerateRequest request) {
         try {
-            String url = properties.getBaseUrl() + "/api/generate";
+            String baseUrl = properties.getBaseUrl().replaceAll("/+$", "");
+            String url = baseUrl + "/api/generate";
             String jsonRequest = objectMapper.writeValueAsString(request);
 
             log.debug("Enviando request para Ollama generate: model={}, url={}",
@@ -53,7 +53,7 @@ public class OllamaClient {
 
             if (httpResponse.statusCode() != 200) {
                 log.error("Ollama retornou erro {}: {}", httpResponse.statusCode(), httpResponse.body());
-                throw new RuntimeException("Ollama retornou status " + httpResponse.statusCode());
+                throw new LlmServiceException("Ollama retornou status " + httpResponse.statusCode());
             }
 
             GenerateResponse response = objectMapper.readValue(
@@ -64,39 +64,11 @@ public class OllamaClient {
 
             return response;
 
+        } catch (LlmServiceException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Falha na comunicacao com Ollama: {}", e.getMessage());
-            throw new RuntimeException("Erro ao comunicar com Ollama: " + e.getMessage(), e);
-        }
-    }
-
-    public EmbeddingResponse embed(EmbeddingRequest request) {
-        try {
-            String url = properties.getBaseUrl() + "/api/embeddings";
-            String jsonRequest = objectMapper.writeValueAsString(request);
-
-            log.debug("Enviando request para Ollama embeddings: model={}", request.getModel());
-
-            HttpRequest httpRequest = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .header("Content-Type", "application/json")
-                    .timeout(Duration.ofMillis(properties.getReadTimeout()))
-                    .POST(HttpRequest.BodyPublishers.ofString(jsonRequest))
-                    .build();
-
-            HttpResponse<String> httpResponse = httpClient.send(httpRequest,
-                    HttpResponse.BodyHandlers.ofString());
-
-            if (httpResponse.statusCode() != 200) {
-                log.error("Ollama embeddings retornou erro {}: {}", httpResponse.statusCode(), httpResponse.body());
-                throw new RuntimeException("Ollama embeddings retornou status " + httpResponse.statusCode());
-            }
-
-            return objectMapper.readValue(httpResponse.body(), EmbeddingResponse.class);
-
-        } catch (Exception e) {
-            log.error("Falha no embedding com Ollama: {}", e.getMessage());
-            throw new RuntimeException("Erro ao gerar embedding via Ollama: " + e.getMessage(), e);
+            throw new LlmServiceException("Erro ao comunicar com Ollama: " + e.getMessage(), e);
         }
     }
 
@@ -105,7 +77,7 @@ public class OllamaClient {
             String url = properties.getBaseUrl();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
-                    .timeout(Duration.ofSeconds(2))
+                    .timeout(Duration.ofMillis(properties.getConnectTimeout()))
                     .GET()
                     .build();
             HttpResponse<String> response = httpClient.send(request,
