@@ -1,157 +1,159 @@
 package com.project.chat.service;
 
+import com.project.chat.ai.MarvelAiAgent;
 import com.project.chat.dto.request.ChatRequest;
 import com.project.chat.dto.response.ChatResponse;
 import com.project.chat.dto.response.ConversationResponse;
 import com.project.chat.dto.response.HistoryResponse;
-import com.project.chat.entity.Attachment;
-import com.project.chat.entity.DocumentChunk;
-import com.project.chat.repository.AttachmentRepository;
+import com.project.chat.dto.response.MessageResponse;
+import com.project.chat.entity.*;
+import com.project.chat.exception.ResourceNotFoundException;
+import com.project.chat.exception.ValidationException;
+import com.project.chat.mapper.MessageMapper;
+import com.project.chat.repository.ConversationRepository;
 import com.project.chat.repository.DocumentChunkRepository;
-import com.project.chat.service.parser.ParserFactory;
+import com.project.chat.repository.MessageRepository;
+import com.project.chat.repository.SessionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
-@Profile("dev")
+@Profile("rag")
 public class RagChatService implements ChatService {
 
     private static final Logger log = LoggerFactory.getLogger(RagChatService.class);
     private static final int MAX_CONTEXT_CHUNKS = 5;
 
-    private final ChatService chatService;
-    private final AttachmentRepository attachmentRepository;
-    private final DocumentChunkRepository documentChunkRepository;
+    private final SessionRepository sessionRepository;
+    private final ConversationRepository conversationRepository;
+    private final MessageRepository messageRepository;
+    private final MessageMapper messageMapper;
+    private final ConversationService conversationService;
     private final EmbeddingService embeddingService;
-    private final ParserFactory parserFactory;
+    private final DocumentChunkRepository documentChunkRepository;
+    private final PromptBuilder promptBuilder;
+    private final MarvelAiAgent marvelAiAgent;
 
-    public RagChatService(@Qualifier("simulatedChatService") ChatService chatService,
-                          AttachmentRepository attachmentRepository,
-                          DocumentChunkRepository documentChunkRepository,
+    public RagChatService(SessionRepository sessionRepository,
+                          ConversationRepository conversationRepository,
+                          MessageRepository messageRepository,
+                          MessageMapper messageMapper,
+                          ConversationService conversationService,
                           EmbeddingService embeddingService,
-                          ParserFactory parserFactory) {
-        this.chatService = chatService;
-        this.attachmentRepository = attachmentRepository;
-        this.documentChunkRepository = documentChunkRepository;
+                          DocumentChunkRepository documentChunkRepository,
+                          PromptBuilder promptBuilder,
+                          MarvelAiAgent marvelAiAgent) {
+        this.sessionRepository = sessionRepository;
+        this.conversationRepository = conversationRepository;
+        this.messageRepository = messageRepository;
+        this.messageMapper = messageMapper;
+        this.conversationService = conversationService;
         this.embeddingService = embeddingService;
-        this.parserFactory = parserFactory;
+        this.documentChunkRepository = documentChunkRepository;
+        this.promptBuilder = promptBuilder;
+        this.marvelAiAgent = marvelAiAgent;
     }
 
     @Override
+    @Transactional
     public ChatResponse sendMessage(ChatRequest request) {
-        String context = "";
-        String attachmentInfo = "";
+        String content = request.getContent();
 
-        if (request.getAttachmentId() != null) {
-            attachmentInfo = processAttachment(request.getAttachmentId(), request.getContent());
-            context = attachmentInfo;
+        if (content == null || content.trim().isEmpty()) {
+            log.warn("Tentativa de envio de mensagem vazia.");
+            throw new ValidationException("A mensagem não pode conter apenas espaços em branco.");
         }
 
-        String query = request.getContent();
+        Session session = sessionRepository.findBySessionId(request.getSessionId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Sessão não encontrada: " + request.getSessionId()));
 
-        if (documentChunkRepository.count() > 0) {
-            String ragContext = searchRelevantContext(query);
-            if (!ragContext.isBlank()) {
-                context = context.isBlank() ? ragContext : context + "\n\n" + ragContext;
+        session.setLastActivity(LocalDateTime.now());
+        sessionRepository.save(session);
+
+        Conversation conversation;
+        if (request.getConversationId() != null) {
+            conversation = conversationRepository.findById(request.getConversationId())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Conversa não encontrada: " + request.getConversationId()));
+            if (!conversation.getSession().getSessionId().equals(request.getSessionId())) {
+                throw new ResourceNotFoundException(
+                        "Conversa não encontrada: " + request.getConversationId());
             }
-        }
-
-        ChatRequest enrichedRequest;
-        if (!context.isBlank()) {
-            String enrichedContent = query + "\n\nContexto:\n" + context;
-            enrichedRequest = new ChatRequest(
-                    request.getSessionId(),
-                    request.getConversationId(),
-                    enrichedContent,
-                    request.getAttachmentId()
-            );
         } else {
-            enrichedRequest = request;
+            String title = content.length() > 50
+                    ? content.substring(0, 50) + "..."
+                    : content;
+            conversation = new Conversation(session, title);
+            conversation = conversationRepository.save(conversation);
+            log.info("Nova conversa criada: id={}", conversation.getId());
         }
 
-        return chatService.sendMessage(enrichedRequest);
-    }
+        conversation.setUpdatedAt(LocalDateTime.now());
+        conversationRepository.save(conversation);
 
-    private String processAttachment(Long attachmentId, String userQuery) {
+        Message userMessage = messageMapper.toEntity(request, conversation, MessageRole.USER);
+        userMessage = messageRepository.save(userMessage);
+        log.info("Mensagem do usuário salva: id={}", userMessage.getId());
+
+        // RAG flow: embedding → retrieval → prompt builder → Ollama → response
+        String answer;
         try {
-            Optional<Attachment> optAttachment = attachmentRepository.findById(attachmentId);
-            if (optAttachment.isEmpty()) {
-                log.warn("Attachment não encontrado: id={}", attachmentId);
-                return "";
-            }
-
-            Attachment attachment = optAttachment.get();
-            String filePath = attachment.getStoragePath();
-            String fileType = attachment.getFileType();
-
-            if (filePath == null || !Files.exists(Path.of(filePath))) {
-                log.warn("Arquivo não encontrado no disco: {}", filePath);
-                return "";
-            }
-
-            String sourceType;
-            if ("text/plain".equals(fileType)) {
-                sourceType = "txt";
-            } else if ("application/pdf".equals(fileType)) {
-                sourceType = "pdf";
-            } else {
-                log.warn("Tipo de arquivo não suportado para contexto: {}", fileType);
-                return "";
-            }
-
-            String text = parserFactory.getParser(sourceType).parse(filePath);
-
-            String attachmentContent = "--- Conteúdo do arquivo anexado (" + attachment.getFileName() + ") ---\n";
-            if (text.length() > 4000) {
-                attachmentContent += text.substring(0, 4000) + "\n[... conteúdo truncado para contexto de chat ...]";
-            } else {
-                attachmentContent += text;
-            }
-
-            return attachmentContent;
-
+            List<DocumentChunk> chunks = searchRelevantChunks(content);
+            String chunkContext = promptBuilder.buildChunkContext(chunks);
+            answer = marvelAiAgent.askWithContext(content, chunkContext);
+            log.info("Resposta gerada via RAG ({} caracteres)", answer.length());
         } catch (Exception e) {
-            log.error("Erro ao processar attachment {}: {}", attachmentId, e.getMessage());
-            return "";
+            log.warn("Fluxo RAG falhou, usando fallback: {}", e.getMessage());
+            answer = marvelAiAgent.ask(content);
         }
+
+        Message assistantMessage = new Message(conversation, MessageRole.ASSISTANT, answer);
+        assistantMessage = messageRepository.save(assistantMessage);
+        log.info("Resposta do assistente salva: id={}", assistantMessage.getId());
+
+        MessageResponse userMsgResponse = messageMapper.toResponse(userMessage);
+        MessageResponse assistantMsgResponse = messageMapper.toResponse(assistantMessage);
+
+        return new ChatResponse(userMsgResponse, assistantMsgResponse, conversation.getId());
     }
 
-    private String searchRelevantContext(String query) {
+    private List<DocumentChunk> searchRelevantChunks(String query) {
         try {
             float[] queryEmbedding = embeddingService.generateEmbedding(query);
-            String vectorStr = DocumentIngestionService.toVectorString(queryEmbedding);
-            List<DocumentChunk> similarChunks = documentChunkRepository.findSimilarChunks(vectorStr, MAX_CONTEXT_CHUNKS);
-
-            if (similarChunks.isEmpty()) {
-                return "";
-            }
-
-            return similarChunks.stream()
-                    .map(c -> "- " + c.getContent())
-                    .collect(Collectors.joining("\n\n"));
-
+            String vectorStr = toVectorString(queryEmbedding);
+            return documentChunkRepository.findSimilarChunks(vectorStr, MAX_CONTEXT_CHUNKS);
         } catch (Exception e) {
-            log.warn("Erro ao buscar contexto RAG: {}", e.getMessage());
-            return "";
+            log.warn("Erro ao buscar chunks relevantes: {}", e.getMessage());
+            return List.of();
         }
     }
 
-    @Override
-    public HistoryResponse getHistory(String sessionId) {
-        return chatService.getHistory(sessionId);
+    private static String toVectorString(float[] embedding) {
+        StringBuilder sb = new StringBuilder("[");
+        for (int i = 0; i < embedding.length; i++) {
+            if (i > 0) sb.append(",");
+            sb.append(embedding[i]);
+        }
+        sb.append("]");
+        return sb.toString();
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public HistoryResponse getHistory(String sessionId) {
+        return conversationService.getHistory(sessionId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public ConversationResponse getConversation(String sessionId, Long conversationId) {
-        return chatService.getConversation(sessionId, conversationId);
+        return conversationService.getConversation(sessionId, conversationId);
     }
 }
