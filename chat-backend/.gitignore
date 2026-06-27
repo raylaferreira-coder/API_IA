@@ -1,0 +1,9 @@
+# Ignorar arquivos compilados pelo Maven
+target/
+*.class
+
+# Ignorar arquivos de configuracao do VS Code / Eclipse
+.classpath
+.project
+.settings/
+.vscode/

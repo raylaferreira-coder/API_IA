@@ -1,7 +1,5 @@
 package com.project.chat.dto.response;
 
-import com.project.chat.entity.Attachment;
-
 import java.time.LocalDateTime;
 
 public class MessageResponse {
@@ -11,7 +9,7 @@ public class MessageResponse {
     private String role;
     private String content;
     private LocalDateTime timestamp;
-    private Attachment attachment;
+    private Object attachment;
 
     public MessageResponse() {
     }
@@ -20,7 +18,7 @@ public class MessageResponse {
         this(id, conversationId, role, content, timestamp, null);
     }
 
-    public MessageResponse(Long id, Long conversationId, String role, String content, LocalDateTime timestamp, Attachment attachment) {
+    public MessageResponse(Long id, Long conversationId, String role, String content, LocalDateTime timestamp, Object attachment) {
         this.id = id;
         this.conversationId = conversationId;
         this.role = role;
@@ -69,11 +67,11 @@ public class MessageResponse {
         this.timestamp = timestamp;
     }
 
-    public Attachment getAttachment() {
+    public Object getAttachment() {
         return attachment;
     }
 
-    public void setAttachment(Attachment attachment) {
+    public void setAttachment(Object attachment) {
         this.attachment = attachment;
     }
 }

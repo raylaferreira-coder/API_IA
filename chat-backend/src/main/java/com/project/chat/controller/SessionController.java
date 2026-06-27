@@ -15,9 +15,9 @@ public class SessionController {
         this.sessionService = sessionService;
     }
 
-    @PostMapping
-    public ResponseEntity<SessionResponse> createSession() {
-        SessionResponse response = sessionService.createSession();
+    @GetMapping
+    public ResponseEntity<SessionResponse> createOrGetSession() {
+        SessionResponse response = sessionService.createOrGetSession();
         return ResponseEntity.ok(response);
     }
 

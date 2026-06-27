@@ -10,7 +10,6 @@ import com.project.chat.mapper.MessageMapper;
 import com.project.chat.repository.ConversationRepository;
 import com.project.chat.repository.MessageRepository;
 import com.project.chat.repository.SessionRepository;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,10 +42,8 @@ public class ConversationService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Nenhuma conversa encontrada para a sessão: " + sessionId));
 
-        long totalConversations = conversationRepository.countBySessionSessionId(sessionId);
-        int maxConversations = (int) Math.min(Math.max(totalConversations, 1), 100);
         List<Conversation> conversations = conversationRepository
-                .findBySessionSessionIdOrderByUpdatedAtDesc(sessionId, PageRequest.of(0, maxConversations));
+                .findBySessionSessionIdOrderByUpdatedAtDesc(sessionId);
 
         List<com.project.chat.dto.response.ConversationSummaryResponse> summaries = conversations.stream()
                 .map(conversationMapper::toSummary)

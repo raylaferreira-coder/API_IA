@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@NamedEntityGraph(name = "Conversation.withMessages", attributeNodes = @NamedAttributeNode("messages"))
 @Entity
 @Table(name = "conversations")
 public class Conversation {
@@ -98,20 +97,5 @@ public class Conversation {
 
     public void setMessages(List<Message> messages) {
         this.messages = messages;
-    }
-
-    @PrePersist
-    protected void onCreate() {
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
-        if (updatedAt == null) {
-            updatedAt = createdAt;
-        }
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
     }
 }
