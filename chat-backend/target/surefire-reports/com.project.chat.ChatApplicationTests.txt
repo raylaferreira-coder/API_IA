@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.project.chat.ChatApplicationTests
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.610 s -- in com.project.chat.ChatApplicationTests
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.694 s -- in com.project.chat.ChatApplicationTests
