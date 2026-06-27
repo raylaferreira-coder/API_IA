@@ -1,0 +1,86 @@
+# Maven
+target/
+*.jar
+*.war
+*.ear
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# Maven Wrapper
+.mvn/wrapper/maven-wrapper.jar
+
+# Compilados
+*.class
+*.log
+
+# IDE - Eclipse
+.classpath
+.project
+.settings/
+*.prefs
+*.swp
+*~
+
+# IDE - IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.idea_modules/
+
+# IDE - VS Code
+.vscode/
+*.code-workspace
+
+# IDE - NetBeans
+nbproject/
+nb-configuration.xml
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Env / Secrets
+.env
+*.env.local
+*.env.*.local
+application-local.yml
+application-local.properties
+
+# Uploads
+uploads/
+
+# Logs
+logs/
+*.log
+*.gz
+
+# Temp
+tmp/
+temp/
+*.tmp
+*.swp
+
+# Test results
+test-output/
+surefire-reports/
+
+# Spring Boot
+!.mvn/wrapper/maven-wrapper.jar
+
+# Node (se houver frontend)
+node_modules/
