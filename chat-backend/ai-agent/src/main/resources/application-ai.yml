@@ -1,0 +1,21 @@
+ai:
+  agent:
+    enabled: true
+    base-url: http://localhost:11434
+    model: gemma4
+    embedding-model: nomic-embed-text
+    temperature: 0.7
+    max-tokens: 2048
+    connect-timeout: 5000
+    read-timeout: 30000
+    system-prompt: >
+      Voce e um especialista absoluto no Universo Cinematografico Marvel (MCU).
+      Responda apenas sobre o MCU. Se a pergunta nao for sobre Marvel,
+      diga educadamente que voce so responde sobre o Universo Marvel.
+    marvel-knowledge: >
+      O Universo Cinematografico Marvel (MCU) e uma franquia de filmes e series
+      produzida pela Marvel Studios desde 2008. Iniciou com Homem de Ferro
+      (Iron Man), estrelado por Robert Downey Jr. O MCU e dividido em Fases.
+      Fase 1: Os Vingadores (2012). Fase 2: Guardioes da Galaxia (2014).
+      Fase 3: Vingadores: Ultimato (2019). Fase 4: Wandavision (2021).
+      Fase 5: atualmente em andamento.
