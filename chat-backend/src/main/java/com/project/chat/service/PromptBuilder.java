@@ -1,81 +1,35 @@
 package com.project.chat.service;
 
 import com.project.chat.ai.prompt.MarvelPromptBuilder;
-import com.project.chat.entity.Message;
-import com.project.chat.repository.MessageRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
+import com.project.chat.entity.DocumentChunk;
+import org.springframework.stereotype.Component;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@Service
+@Component
 public class PromptBuilder {
 
-    private static final Logger log = LoggerFactory.getLogger(PromptBuilder.class);
-    private static final int MAX_HISTORY_MESSAGES = 10;
-
     private final MarvelPromptBuilder marvelPromptBuilder;
-    private final MessageRepository messageRepository;
 
-    public PromptBuilder(MarvelPromptBuilder marvelPromptBuilder,
-                         MessageRepository messageRepository) {
+    public PromptBuilder(MarvelPromptBuilder marvelPromptBuilder) {
         this.marvelPromptBuilder = marvelPromptBuilder;
-        this.messageRepository = messageRepository;
     }
 
-    public String buildPrompt(String question, String ragContext, Long conversationId) {
-        String historyContext = buildHistoryContext(conversationId);
-        String combinedContext = combineContexts(historyContext, ragContext);
-        return marvelPromptBuilder.buildPromptWithContext(question, combinedContext);
+    public String buildWithContext(String question, List<DocumentChunk> chunks) {
+        String chunksContext = buildChunkContext(chunks);
+        if (chunksContext.isBlank()) {
+            return marvelPromptBuilder.buildSimplePrompt(question);
+        }
+        return marvelPromptBuilder.buildPromptWithContext(question, chunksContext);
     }
 
-    public String buildSimplePrompt(String question) {
-        return marvelPromptBuilder.buildSimplePrompt(question);
-    }
-
-    private String buildHistoryContext(Long conversationId) {
-        if (conversationId == null) {
+    public String buildChunkContext(List<DocumentChunk> chunks) {
+        if (chunks == null || chunks.isEmpty()) {
             return "";
         }
-        try {
-            List<Message> messages = messageRepository
-                    .findByConversationIdOrderByTimestampAsc(conversationId);
-
-            if (messages.isEmpty()) {
-                return "";
-            }
-
-            int start = Math.max(0, messages.size() - MAX_HISTORY_MESSAGES);
-            List<Message> recent = messages.subList(start, messages.size());
-
-            StringBuilder sb = new StringBuilder();
-            sb.append("--- Historico da conversa ---\n");
-            for (Message msg : recent) {
-                String role = msg.getRole() == com.project.chat.entity.MessageRole.USER ? "Usuario" : "Assistente";
-                sb.append(role).append(": ").append(msg.getContent()).append("\n");
-            }
-            sb.append("--- Fim do historico ---");
-
-            return sb.toString();
-        } catch (Exception e) {
-            log.warn("Erro ao buscar historico da conversa {}: {}", conversationId, e.getMessage());
-            return "";
-        }
+        return chunks.stream()
+                .map(c -> "- " + c.getContent())
+                .collect(Collectors.joining("\n\n"));
     }
 
-    private String combineContexts(String historyContext, String ragContext) {
-        StringBuilder sb = new StringBuilder();
-        if (!historyContext.isBlank()) {
-            sb.append(historyContext);
-        }
-        if (!ragContext.isBlank()) {
-            if (!sb.isEmpty()) {
-                sb.append("\n\n");
-            }
-            sb.append("--- Conhecimento dos documentos ---\n");
-            sb.append(ragContext);
-        }
-        return sb.toString();
-    }
 }
