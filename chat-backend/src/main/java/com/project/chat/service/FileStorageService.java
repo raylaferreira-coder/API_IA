@@ -29,10 +29,17 @@ public class FileStorageService {
         String originalName = file.getOriginalFilename();
         String extension = "";
         if (originalName != null && originalName.contains(".")) {
-            extension = originalName.substring(originalName.lastIndexOf("."));
+            String rawExt = originalName.substring(originalName.lastIndexOf("."));
+            extension = rawExt.replaceAll("[^a-zA-Z0-9.]", "");
+        }
+        if (extension.length() > 10) {
+            extension = "";
         }
         String storedName = UUID.randomUUID() + extension;
-        Path targetPath = uploadDir.resolve(storedName);
+        Path targetPath = uploadDir.resolve(storedName).normalize();
+        if (!targetPath.startsWith(uploadDir)) {
+            throw new IOException("Path traversal detectado: " + originalName);
+        }
         Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
         return targetPath;
     }

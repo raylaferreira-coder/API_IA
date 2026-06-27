@@ -72,4 +72,14 @@ public class Session {
     public void setExpired(boolean expired) {
         this.expired = expired;
     }
+
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        if (lastActivity == null) {
+            lastActivity = createdAt;
+        }
+    }
 }

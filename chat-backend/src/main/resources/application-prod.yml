@@ -11,11 +11,32 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: false
     properties:
       hibernate:
         format_sql: false
+
+ollama:
+  base-url: ${OLLAMA_URL:http://ollama:11434}
+  embedding-model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
+
+ai:
+  agent:
+    enabled: true
+    model: ${OLLAMA_MODEL:llama3.2}
+    temperature: ${AI_AGENT_TEMPERATURE:0.7}
+    max-tokens: ${AI_AGENT_MAX_TOKENS:2048}
+
+rag:
+  chunking:
+    size: ${CHUNK_SIZE:800}
+    overlap: ${CHUNK_OVERLAP:120}
+  webhook:
+    url: ${N8N_WEBHOOK_URL:http://n8n:5678/webhook/ingestion-complete}
+    enabled: true
+    retry-attempts: 3
+    retry-delay: 1000
 
 logging:
   level:

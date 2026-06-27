@@ -55,18 +55,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body(error);
     }
 
-    @ExceptionHandler(FileCorruptedException.class)
-    public ResponseEntity<ErrorResponse> handleFileCorrupted(FileCorruptedException ex, HttpServletRequest request) {
-        log.warn("Arquivo corrompido: {}", ex.getMessage());
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                "Bad Request",
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-    }
-
     @ExceptionHandler(FileTooLargeException.class)
     public ResponseEntity<ErrorResponse> handleFileTooLarge(FileTooLargeException ex, HttpServletRequest request) {
         log.warn("Arquivo muito grande: {}", ex.getMessage());
@@ -129,6 +117,42 @@ public class GlobalExceptionHandler {
                 request.getRequestURI()
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(IngestionException.class)
+    public ResponseEntity<ErrorResponse> handleIngestion(IngestionException ex, HttpServletRequest request) {
+        log.error("Erro de ingestão: {}", ex.getMessage());
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.UNPROCESSABLE_ENTITY.value(),
+                "Ingestion Error",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(error);
+    }
+
+    @ExceptionHandler(EmbeddingException.class)
+    public ResponseEntity<ErrorResponse> handleEmbedding(EmbeddingException ex, HttpServletRequest request) {
+        log.error("Erro de embedding: {}", ex.getMessage());
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Embedding Error",
+                "Erro ao processar vetor de busca. Tente novamente.",
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
+    @ExceptionHandler(LlmServiceException.class)
+    public ResponseEntity<ErrorResponse> handleLlm(LlmServiceException ex, HttpServletRequest request) {
+        log.error("Erro no serviço LLM: {}", ex.getMessage());
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "LLM Service Error",
+                "Erro ao consultar o modelo de IA. Verifique se o Ollama está rodando.",
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
     @ExceptionHandler(Exception.class)
