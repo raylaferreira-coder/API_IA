@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama-marvel
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    entrypoint: >
+      sh -c "
+      echo 'Iniciando Ollama server...' &&
+      ollama serve &
+      sleep 5 &&
+      echo 'Baixando modelo LLM...' &&
+      ollama pull llama3 &&
+      echo 'Baixando nomic-embed-text...' &&
+      ollama pull nomic-embed-text &&
+      echo 'Modelos prontos! llama3 + nomic-embed-text disponiveis' &&
+      wait
+      "
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - marvel-net
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n-marvel
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+    volumes:
+      - n8n_data:/home/node/.n8n
+    restart: unless-stopped
+    networks:
+      - marvel-net
+
+networks:
+  marvel-net:
+    driver: bridge
+
+volumes:
+  ollama_data:
+    driver: local
+  n8n_data:
+    driver: local
