@@ -1,21 +1,32 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:chatdb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+    url: ${DATABASE_URL}
+    driver-class-name: org.postgresql.Driver
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
         format_sql: true
+
+ollama:
+  base-url: http://localhost:11434
+  embedding-model: nomic-embed-text
+
+ai:
+  agent:
+    enabled: true
+    model: llama3.2
+    temperature: 0.7
+
+rag:
+  chunking:
+    size: 800
+    overlap: 120
 
 logging:
   level:

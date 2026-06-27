@@ -14,12 +14,14 @@ import com.project.chat.repository.MessageRepository;
 import com.project.chat.repository.SessionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
 @Service
+@Profile("dev")
 public class SimulatedChatService implements ChatService {
 
     private static final Logger log = LoggerFactory.getLogger(SimulatedChatService.class);
