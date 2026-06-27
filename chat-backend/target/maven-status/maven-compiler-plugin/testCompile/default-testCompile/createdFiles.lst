@@ -1,8 +1,0 @@
-com\project\chat\repository\MessageRepositoryTest.class
-com\project\chat\ChatApplicationTests.class
-com\project\chat\controller\HealthControllerTest.class
-com\project\chat\service\SimulatedChatServiceTest.class
-com\project\chat\repository\ConversationRepositoryTest.class
-com\project\chat\controller\ChatControllerTest.class
-com\project\chat\controller\UploadControllerTest.class
-com\project\chat\service\UploadServiceTest.class
