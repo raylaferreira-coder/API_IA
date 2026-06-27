@@ -25,21 +25,25 @@ public class DocumentIngestionService {
     private final ParserFactory parserFactory;
     private final ChunkService chunkService;
     private final EmbeddingService embeddingService;
+    private final WebhookService webhookService;
 
     public DocumentIngestionService(DocumentRepository documentRepository,
                                     DocumentChunkRepository documentChunkRepository,
                                     ParserFactory parserFactory,
                                     ChunkService chunkService,
-                                    EmbeddingService embeddingService) {
+                                    EmbeddingService embeddingService,
+                                    WebhookService webhookService) {
         this.documentRepository = documentRepository;
         this.documentChunkRepository = documentChunkRepository;
         this.parserFactory = parserFactory;
         this.chunkService = chunkService;
         this.embeddingService = embeddingService;
+        this.webhookService = webhookService;
     }
 
     @Transactional
     public Document ingestFromUrl(String url) {
+        long startTime = System.currentTimeMillis();
         try {
             String rawText = parserFactory.getParser("url").parse(url);
             String title = extractTitle(rawText, url);
@@ -54,20 +58,28 @@ public class DocumentIngestionService {
             documentRepository.save(document);
             log.info("Documento processado com sucesso: id={}, url={}", document.getId(), url);
 
+            webhookService.notify(document.getId(), url, DocumentStatus.COMPLETED,
+                    document.getChunkCount(), System.currentTimeMillis() - startTime);
+
             return document;
 
         } catch (Exception e) {
             Document document = new Document("Falha ao processar: " + url, url, "url");
             document.setStatus(DocumentStatus.FAILED);
             document.setErrorMessage(e.getMessage());
-            documentRepository.save(document);
+            document = documentRepository.save(document);
             log.error("Falha ao processar documento: id={}, url={}, error={}", document.getId(), url, e.getMessage());
+
+            webhookService.notify(document.getId(), url, DocumentStatus.FAILED,
+                    0, System.currentTimeMillis() - startTime);
+
             throw new IngestionException("Falha ao ingerir URL: " + e.getMessage(), e);
         }
     }
 
     @Transactional
     public Document ingestFromFile(String filePath, String sourceType, String title) {
+        long startTime = System.currentTimeMillis();
         Document document = new Document(
                 title != null ? title : "Arquivo: " + filePath,
                 filePath,
@@ -87,11 +99,18 @@ public class DocumentIngestionService {
             documentRepository.save(document);
             log.info("Arquivo processado com sucesso: id={}, path={}", document.getId(), filePath);
 
+            webhookService.notify(document.getId(), filePath, DocumentStatus.COMPLETED,
+                    document.getChunkCount(), System.currentTimeMillis() - startTime);
+
         } catch (Exception e) {
             document.setStatus(DocumentStatus.FAILED);
             document.setErrorMessage(e.getMessage());
             documentRepository.save(document);
             log.error("Falha ao processar arquivo: id={}, error={}", document.getId(), e.getMessage());
+
+            webhookService.notify(document.getId(), filePath, DocumentStatus.FAILED,
+                    0, System.currentTimeMillis() - startTime);
+
             throw new IngestionException("Falha ao ingerir arquivo: " + e.getMessage(), e);
         }
 
