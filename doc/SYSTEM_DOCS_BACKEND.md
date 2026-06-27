@@ -967,6 +967,7 @@ chat-backend/
 │   │   │   │   ├── ChatService.java
 │   │   │   │   ├── SimulatedChatService.java
 │   │   │   │   ├── SessionService.java
+│   │   │   │   ├── ConversationService.java
 │   │   │   │   ├── UploadService.java
 │   │   │   │   └── FileStorageService.java
 │   │   │   ├── repository/

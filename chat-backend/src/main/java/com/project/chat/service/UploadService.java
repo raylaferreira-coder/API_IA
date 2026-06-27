@@ -2,6 +2,7 @@ package com.project.chat.service;
 
 import com.project.chat.dto.response.UploadResponse;
 import com.project.chat.entity.Attachment;
+import com.project.chat.exception.FileCorruptedException;
 import com.project.chat.exception.FileTooLargeException;
 import com.project.chat.exception.UnsupportedFileTypeException;
 import com.project.chat.mapper.AttachmentMapper;
@@ -48,6 +49,11 @@ public class UploadService {
             log.warn("Tipo de arquivo não suportado: {}", contentType);
             throw new UnsupportedFileTypeException(
                     "Formato de arquivo não suportado. Utilize .txt ou .pdf.");
+        }
+
+        if (!FileUtils.isValidContent(file)) {
+            log.warn("Arquivo corrompido ou inválido: {}", file.getOriginalFilename());
+            throw new FileCorruptedException("O arquivo enviado está corrompido ou é inválido.");
         }
 
         try {

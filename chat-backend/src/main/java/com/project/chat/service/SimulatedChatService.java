@@ -52,6 +52,11 @@ public class SimulatedChatService implements ChatService {
             throw new ValidationException("A mensagem não pode conter apenas espaços em branco.");
         }
 
+        if (content.length() > 5000) {
+            log.warn("Tentativa de envio de mensagem excede o limite de 5000 caracteres.");
+            throw new ValidationException("A mensagem excede o limite de 5000 caracteres.");
+        }
+
         Session session = sessionRepository.findBySessionId(request.getSessionId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Sessão não encontrada: " + request.getSessionId()));

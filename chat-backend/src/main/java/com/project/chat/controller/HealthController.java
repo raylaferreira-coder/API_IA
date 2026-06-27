@@ -53,9 +53,6 @@ public class HealthController {
                 version
         );
 
-        if (dbStatus.equals("DOWN")) {
-            return ResponseEntity.status(503).body(response);
-        }
         return ResponseEntity.ok(response);
     }
 }

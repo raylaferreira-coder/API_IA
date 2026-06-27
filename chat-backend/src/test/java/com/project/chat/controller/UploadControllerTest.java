@@ -20,6 +20,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(UploadController.class)
 class UploadControllerTest {
 
+    private static final String VALID_UUID = "a1b2c3d4-e5f6-7890-abcd-ef1234567890";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -37,7 +39,7 @@ class UploadControllerTest {
 
         mockMvc.perform(multipart("/api/upload")
                         .file(file)
-                        .param("sessionId", "session-1")
+                        .param("sessionId", VALID_UUID)
                         .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.attachmentId").value(1));

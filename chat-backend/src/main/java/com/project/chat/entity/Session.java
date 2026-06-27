@@ -2,6 +2,8 @@ package com.project.chat.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "sessions")
@@ -22,6 +24,9 @@ public class Session {
 
     @Column(nullable = false)
     private boolean expired;
+
+    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Conversation> conversations = new ArrayList<>();
 
     public Session() {
     }
