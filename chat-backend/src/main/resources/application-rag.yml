@@ -1,4 +1,7 @@
 spring:
+  # ═══════════════════════════════════════════════
+  # Database — a ser preenchido pelo dev de banco
+  # ═══════════════════════════════════════════════
   datasource:
     url: ${DATABASE_URL}
     driver-class-name: org.postgresql.Driver
@@ -16,8 +19,6 @@ spring:
     properties:
       hibernate:
         format_sql: false
-        vector:
-          use_vector: true
 
 ollama:
   base-url: ${OLLAMA_URL:http://localhost:11434}
