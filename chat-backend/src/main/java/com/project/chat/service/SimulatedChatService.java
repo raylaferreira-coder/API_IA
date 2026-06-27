@@ -64,6 +64,10 @@ public class SimulatedChatService implements ChatService {
             conversation = conversationRepository.findById(request.getConversationId())
                     .orElseThrow(() -> new ResourceNotFoundException(
                             "Conversa não encontrada: " + request.getConversationId()));
+            if (!conversation.getSession().getSessionId().equals(request.getSessionId())) {
+                throw new ResourceNotFoundException(
+                        "Conversa não encontrada: " + request.getConversationId());
+            }
         } else {
             String title = content.length() > 50
                     ? content.substring(0, 50) + "..."
@@ -76,7 +80,7 @@ public class SimulatedChatService implements ChatService {
         conversation.setUpdatedAt(LocalDateTime.now());
         conversationRepository.save(conversation);
 
-        Message userMessage = new Message(conversation, MessageRole.USER, content);
+        Message userMessage = messageMapper.toEntity(request, conversation, MessageRole.USER);
         userMessage = messageRepository.save(userMessage);
         log.info("Mensagem do usuário salva: id={}", userMessage.getId());
 

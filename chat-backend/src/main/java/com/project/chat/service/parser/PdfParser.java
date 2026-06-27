@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.Path;
+import java.io.File;
 
 @Component
 public class PdfParser implements DocumentParser {
@@ -17,7 +17,7 @@ public class PdfParser implements DocumentParser {
     @Override
     public String parse(String filePath) throws Exception {
         log.info("Lendo arquivo PDF: {}", filePath);
-        try (PDDocument document = Loader.loadPDF(Path.of(filePath).toFile())) {
+        try (PDDocument document = Loader.loadPDF(new File(filePath))) {
             PDFTextStripper stripper = new PDFTextStripper();
             stripper.setSortByPosition(true);
             String content = stripper.getText(document);

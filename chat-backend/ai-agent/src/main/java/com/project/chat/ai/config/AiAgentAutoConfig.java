@@ -19,9 +19,7 @@ public class AiAgentAutoConfig {
     @Bean
     @ConfigurationProperties(prefix = "ai.agent")
     public AiAgentProperties aiAgentProperties() {
-        AiAgentProperties properties = new AiAgentProperties();
-        log.info("Carregando configuracoes do Agente de IA (modelo: {})", properties.getModel());
-        return properties;
+        return new AiAgentProperties();
     }
 
     @Bean
