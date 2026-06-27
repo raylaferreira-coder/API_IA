@@ -23,3 +23,18 @@ chat:
     upload-dir: ./uploads
   session:
     expiration-hours: 24
+
+rag:
+  chunking:
+    size: 800
+    overlap: 120
+
+ollama:
+  base-url: http://localhost:11434
+  embedding-model: nomic-embed-text
+
+ai:
+  agent:
+    enabled: true
+    model: gemma4
+    base-url: ${ollama.base-url}
