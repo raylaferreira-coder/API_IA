@@ -2,6 +2,7 @@ package com.project.chat.service;
 
 import com.project.chat.dto.response.UploadResponse;
 import com.project.chat.entity.Attachment;
+import com.project.chat.exception.FileCorruptedException;
 import com.project.chat.exception.FileTooLargeException;
 import com.project.chat.exception.UnsupportedFileTypeException;
 import com.project.chat.mapper.AttachmentMapper;
@@ -10,7 +11,6 @@ import com.project.chat.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -33,8 +33,7 @@ public class UploadService {
         this.attachmentMapper = attachmentMapper;
     }
 
-    @Transactional
-    public UploadResponse uploadFile(MultipartFile file) {
+    public UploadResponse uploadFile(MultipartFile file, String sessionId) {
         if (file == null || file.isEmpty()) {
             log.warn("Tentativa de upload sem arquivo.");
             throw new IllegalArgumentException("Nenhum arquivo foi enviado.");
@@ -50,6 +49,11 @@ public class UploadService {
             log.warn("Tipo de arquivo não suportado: {}", contentType);
             throw new UnsupportedFileTypeException(
                     "Formato de arquivo não suportado. Utilize .txt ou .pdf.");
+        }
+
+        if (!FileUtils.isValidContent(file)) {
+            log.warn("Arquivo corrompido ou inválido: {}", file.getOriginalFilename());
+            throw new FileCorruptedException("O arquivo enviado está corrompido ou é inválido.");
         }
 
         try {

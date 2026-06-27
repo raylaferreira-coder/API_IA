@@ -30,9 +30,11 @@ class ChatControllerTest {
     @MockitoBean
     private ChatService chatService;
 
+    private static final String VALID_UUID = "a1b2c3d4-e5f6-7890-abcd-ef1234567890";
+
     @Test
     void sendMessage_ShouldReturn200() throws Exception {
-        ChatRequest request = new ChatRequest("session-1", null, "Olá", null);
+        ChatRequest request = new ChatRequest(VALID_UUID, null, "Olá", null);
         ChatResponse response = new ChatResponse(null, null, 1L);
 
         when(chatService.sendMessage(any(ChatRequest.class))).thenReturn(response);
@@ -45,11 +47,11 @@ class ChatControllerTest {
 
     @Test
     void getHistory_ShouldReturn200() throws Exception {
-        HistoryResponse response = new HistoryResponse("session-1", java.util.Collections.emptyList());
+        HistoryResponse response = new HistoryResponse(VALID_UUID, java.util.Collections.emptyList());
 
-        when(chatService.getHistory("session-1")).thenReturn(response);
+        when(chatService.getHistory(VALID_UUID)).thenReturn(response);
 
-        mockMvc.perform(get("/api/chat/history/{sessionId}", "session-1"))
+        mockMvc.perform(get("/api/chat/history/{sessionId}", VALID_UUID))
                 .andExpect(status().isOk());
     }
 
@@ -57,9 +59,9 @@ class ChatControllerTest {
     void getConversation_ShouldReturn200() throws Exception {
         ConversationResponse response = new ConversationResponse(1L, java.util.Collections.emptyList());
 
-        when(chatService.getConversation("session-1", 1L)).thenReturn(response);
+        when(chatService.getConversation(VALID_UUID, 1L)).thenReturn(response);
 
-        mockMvc.perform(get("/api/chat/history/{sessionId}/{conversationId}", "session-1", 1L))
+        mockMvc.perform(get("/api/chat/history/{sessionId}/{conversationId}", VALID_UUID, 1L))
                 .andExpect(status().isOk());
     }
 }

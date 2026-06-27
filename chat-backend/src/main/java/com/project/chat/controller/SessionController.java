@@ -1,7 +1,10 @@
 package com.project.chat.controller;
 
+import com.project.chat.dto.response.ErrorResponse;
 import com.project.chat.dto.response.SessionResponse;
 import com.project.chat.service.SessionService;
+import com.project.chat.util.FileUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,14 +18,22 @@ public class SessionController {
         this.sessionService = sessionService;
     }
 
-    @PostMapping
-    public ResponseEntity<SessionResponse> createSession() {
-        SessionResponse response = sessionService.createSession();
+    @GetMapping
+    public ResponseEntity<SessionResponse> createOrGetSession() {
+        SessionResponse response = sessionService.createOrGetSession();
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{sessionId}")
-    public ResponseEntity<Void> invalidateSession(@PathVariable String sessionId) {
+    public ResponseEntity<?> invalidateSession(@PathVariable String sessionId, HttpServletRequest request) {
+        if (!FileUtils.isValidUuid(sessionId)) {
+            ErrorResponse error = new ErrorResponse(
+                    400, "Bad Request",
+                    "O identificador de sessão fornecido é inválido.",
+                    request.getRequestURI()
+            );
+            return ResponseEntity.badRequest().body(error);
+        }
         sessionService.invalidateSession(sessionId);
         return ResponseEntity.noContent().build();
     }

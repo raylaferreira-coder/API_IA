@@ -4,7 +4,10 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "messages")
+@Table(name = "messages", indexes = {
+    @Index(name = "idx_message_conversation_id", columnList = "conversation_id"),
+    @Index(name = "idx_message_timestamp", columnList = "timestamp")
+})
 public class Message {
 
     @Id
@@ -25,7 +28,7 @@ public class Message {
     @Column(nullable = false)
     private LocalDateTime timestamp;
 
-    @OneToOne(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "message", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Attachment attachment;
 
     public Message() {
@@ -84,12 +87,5 @@ public class Message {
 
     public void setAttachment(Attachment attachment) {
         this.attachment = attachment;
-    }
-
-    @PrePersist
-    protected void onCreate() {
-        if (timestamp == null) {
-            timestamp = LocalDateTime.now();
-        }
     }
 }

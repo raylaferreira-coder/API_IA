@@ -14,14 +14,12 @@ import com.project.chat.repository.MessageRepository;
 import com.project.chat.repository.SessionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
 @Service
-@Profile("dev")
 public class SimulatedChatService implements ChatService {
 
     private static final Logger log = LoggerFactory.getLogger(SimulatedChatService.class);
@@ -54,6 +52,11 @@ public class SimulatedChatService implements ChatService {
             throw new ValidationException("A mensagem não pode conter apenas espaços em branco.");
         }
 
+        if (content.length() > 5000) {
+            log.warn("Tentativa de envio de mensagem excede o limite de 5000 caracteres.");
+            throw new ValidationException("A mensagem excede o limite de 5000 caracteres.");
+        }
+
         Session session = sessionRepository.findBySessionId(request.getSessionId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Sessão não encontrada: " + request.getSessionId()));
@@ -66,10 +69,6 @@ public class SimulatedChatService implements ChatService {
             conversation = conversationRepository.findById(request.getConversationId())
                     .orElseThrow(() -> new ResourceNotFoundException(
                             "Conversa não encontrada: " + request.getConversationId()));
-            if (!conversation.getSession().getSessionId().equals(request.getSessionId())) {
-                throw new ResourceNotFoundException(
-                        "Conversa não encontrada: " + request.getConversationId());
-            }
         } else {
             String title = content.length() > 50
                     ? content.substring(0, 50) + "..."
@@ -82,7 +81,7 @@ public class SimulatedChatService implements ChatService {
         conversation.setUpdatedAt(LocalDateTime.now());
         conversationRepository.save(conversation);
 
-        Message userMessage = messageMapper.toEntity(request, conversation, MessageRole.USER);
+        Message userMessage = new Message(conversation, MessageRole.USER, content);
         userMessage = messageRepository.save(userMessage);
         log.info("Mensagem do usuário salva: id={}", userMessage.getId());
 
