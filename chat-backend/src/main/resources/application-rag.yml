@@ -23,8 +23,8 @@ spring:
 rag:
   topK: ${RAG_TOP_K:5}
   ollama:
-    url: ${OLLAMA_URL:http://localhost:11434}
-    model: ${OLLAMA_MODEL:llama3.2}
+    url: ${RAG_OLLAMA_URL:http://localhost:11434}
+    model: ${OLLAMA_MODEL:gemma4}
     embedding-model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
     connect-timeout: ${OLLAMA_CONNECT_TIMEOUT:5s}
     read-timeout: ${OLLAMA_READ_TIMEOUT:30s}
@@ -42,7 +42,8 @@ rag:
 ai:
   agent:
     enabled: true
-    model: ${OLLAMA_MODEL:llama3.2}
+    base-url: ${RAG_OLLAMA_URL:http://localhost:11434}
+    model: ${OLLAMA_MODEL:gemma4}
     temperature: ${AI_AGENT_TEMPERATURE:0.7}
     max-tokens: ${AI_AGENT_MAX_TOKENS:2048}
 

@@ -11,6 +11,7 @@ import com.project.chat.exception.ResourceNotFoundException;
 import com.project.chat.exception.SessionConflictException;
 import com.project.chat.exception.ValidationException;
 import com.project.chat.mapper.MessageMapper;
+import com.project.chat.repository.AttachmentRepository;
 import com.project.chat.repository.ConversationRepository;
 import com.project.chat.repository.MessageRepository;
 import com.project.chat.repository.SessionRepository;
@@ -40,6 +41,7 @@ public class RagChatService implements ChatService {
     private final RetrievalService retrievalService;
     private final PromptBuilder promptBuilder;
     private final OllamaChatService ollamaChatService;
+    private final AttachmentRepository attachmentRepository;
 
     public RagChatService(SessionRepository sessionRepository,
                           ConversationRepository conversationRepository,
@@ -50,6 +52,7 @@ public class RagChatService implements ChatService {
                           RetrievalService retrievalService,
                           PromptBuilder promptBuilder,
                           OllamaChatService ollamaChatService,
+                          AttachmentRepository attachmentRepository,
                           @Value("${rag.topK:5}") int topK) {
         this.sessionRepository = sessionRepository;
         this.conversationRepository = conversationRepository;
@@ -60,6 +63,7 @@ public class RagChatService implements ChatService {
         this.retrievalService = retrievalService;
         this.promptBuilder = promptBuilder;
         this.ollamaChatService = ollamaChatService;
+        this.attachmentRepository = attachmentRepository;
         this.topK = topK;
     }
 
@@ -108,6 +112,16 @@ public class RagChatService implements ChatService {
         Message userMessage = messageMapper.toEntity(request, conversation, MessageRole.USER);
         userMessage = messageRepository.save(userMessage);
         log.info("Mensagem do usuário salva: id={}", userMessage.getId());
+
+        if (request.getAttachmentId() != null) {
+            Attachment attachment = attachmentRepository.findById(request.getAttachmentId())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Anexo não encontrado: " + request.getAttachmentId()));
+            attachment.setMessage(userMessage);
+            attachmentRepository.save(attachment);
+            userMessage.setAttachment(attachment);
+            log.info("Anexo vinculado à mensagem: attachmentId={}", attachment.getId());
+        }
 
         // RAG flow: embedding → retrieval → prompt builder → Ollama → response
         String answer;

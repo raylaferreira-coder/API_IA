@@ -10,8 +10,9 @@ public class DocumentMetadata {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "document_id", nullable = false)
-    private Long documentId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "document_id", nullable = false)
+    private Document document;
 
     @Column(nullable = false)
     private String key;
@@ -21,8 +22,8 @@ public class DocumentMetadata {
 
     public DocumentMetadata() {}
 
-    public DocumentMetadata(Long documentId, String key, String value) {
-        this.documentId = documentId;
+    public DocumentMetadata(Document document, String key, String value) {
+        this.document = document;
         this.key = key;
         this.value = value;
     }
@@ -30,8 +31,10 @@ public class DocumentMetadata {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public Long getDocumentId() { return documentId; }
-    public void setDocumentId(Long documentId) { this.documentId = documentId; }
+    public Document getDocument() { return document; }
+    public void setDocument(Document document) { this.document = document; }
+
+    public Long getDocumentId() { return document != null ? document.getId() : null; }
 
     public String getKey() { return key; }
     public void setKey(String key) { this.key = key; }

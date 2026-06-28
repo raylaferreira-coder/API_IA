@@ -10,11 +10,15 @@ import com.project.chat.exception.ResourceNotFoundException;
 import com.project.chat.mapper.DocumentMapper;
 import com.project.chat.repository.DocumentChunkRepository;
 import com.project.chat.repository.DocumentRepository;
+import com.project.chat.service.FileStorageService;
+import com.project.chat.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 
 @Service
@@ -26,15 +30,18 @@ public class DocumentQueryService {
     private final DocumentChunkRepository documentChunkRepository;
     private final DocumentMapper documentMapper;
     private final EmbeddingService embeddingService;
+    private final FileStorageService fileStorageService;
 
     public DocumentQueryService(DocumentRepository documentRepository,
                                 DocumentChunkRepository documentChunkRepository,
                                 DocumentMapper documentMapper,
-                                EmbeddingService embeddingService) {
+                                EmbeddingService embeddingService,
+                                FileStorageService fileStorageService) {
         this.documentRepository = documentRepository;
         this.documentChunkRepository = documentChunkRepository;
         this.documentMapper = documentMapper;
         this.embeddingService = embeddingService;
+        this.fileStorageService = fileStorageService;
     }
 
     @Transactional(readOnly = true)
@@ -59,6 +66,14 @@ public class DocumentQueryService {
                 .orElseThrow(() -> new ResourceNotFoundException("Documento não encontrado: " + documentId));
         documentChunkRepository.deleteByDocumentId(documentId);
         documentRepository.delete(document);
+        if (document.getSourcePath() != null) {
+            try {
+                fileStorageService.delete(Paths.get(document.getSourcePath()));
+                log.info("Arquivo físico removido: {}", document.getSourcePath());
+            } catch (IOException e) {
+                log.warn("Não foi possível remover o arquivo físico: {}", document.getSourcePath(), e);
+            }
+        }
         log.info("Documento removido: id={}", documentId);
     }
 
@@ -76,7 +91,7 @@ public class DocumentQueryService {
     @Transactional(readOnly = true)
     public SearchResultResponse searchSimilar(String query, int topK) {
         float[] queryEmbedding = embeddingService.embed(query);
-        String vectorStr = toVectorString(queryEmbedding);
+        String vectorStr = FileUtils.toVectorString(queryEmbedding);
         List<DocumentChunk> chunks = documentChunkRepository.findSimilarChunks(vectorStr, topK);
 
         List<DocumentChunkResponse> results = chunks.stream()
@@ -112,13 +127,4 @@ public class DocumentQueryService {
         return dotProduct / denominator;
     }
 
-    private static String toVectorString(float[] embedding) {
-        StringBuilder sb = new StringBuilder("[");
-        for (int i = 0; i < embedding.length; i++) {
-            if (i > 0) sb.append(",");
-            sb.append(embedding[i]);
-        }
-        sb.append("]");
-        return sb.toString();
-    }
 }

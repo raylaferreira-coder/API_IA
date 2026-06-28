@@ -31,15 +31,20 @@ rag:
     overlap: 120
   ollama:
     url: http://localhost:11434
-    model: llama3.2
+    model: gemma4
     embedding-model: nomic-embed-text
     connect-timeout: 5s
     read-timeout: 30s
     temperature: 0.7
     max-tokens: 2048
+  webhook:
+    url: http://localhost:5678/webhook/ingestion-complete
+    enabled: false
+    retry-attempts: 3
+    retry-delay: 1000
 
 ai:
   agent:
     enabled: true
-    model: llama3.2
+    model: gemma4
     base-url: ${rag.ollama.url}

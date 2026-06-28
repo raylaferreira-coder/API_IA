@@ -2,6 +2,7 @@ package com.project.chat.service;
 
 import com.project.chat.entity.DocumentChunk;
 import com.project.chat.repository.DocumentChunkRepository;
+import com.project.chat.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -34,17 +35,7 @@ public class VectorRetrievalService implements RetrievalService {
     @Override
     public List<DocumentChunk> search(float[] vector, int topK) {
         log.debug("Buscando chunks similares: vector=float[{}], topK={}", vector.length, topK);
-        String vectorStr = toVectorString(vector);
+        String vectorStr = FileUtils.toVectorString(vector);
         return documentChunkRepository.findSimilarChunks(vectorStr, topK);
-    }
-
-    private static String toVectorString(float[] embedding) {
-        StringBuilder sb = new StringBuilder("[");
-        for (int i = 0; i < embedding.length; i++) {
-            if (i > 0) sb.append(",");
-            sb.append(embedding[i]);
-        }
-        sb.append("]");
-        return sb.toString();
     }
 }

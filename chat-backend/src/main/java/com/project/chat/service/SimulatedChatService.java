@@ -9,6 +9,7 @@ import com.project.chat.entity.*;
 import com.project.chat.exception.ResourceNotFoundException;
 import com.project.chat.exception.ValidationException;
 import com.project.chat.mapper.MessageMapper;
+import com.project.chat.repository.AttachmentRepository;
 import com.project.chat.repository.ConversationRepository;
 import com.project.chat.repository.MessageRepository;
 import com.project.chat.repository.SessionRepository;
@@ -31,17 +32,20 @@ public class SimulatedChatService implements ChatService {
     private final MessageRepository messageRepository;
     private final MessageMapper messageMapper;
     private final ConversationService conversationService;
+    private final AttachmentRepository attachmentRepository;
 
     public SimulatedChatService(SessionRepository sessionRepository,
                                 ConversationRepository conversationRepository,
                                 MessageRepository messageRepository,
                                 MessageMapper messageMapper,
-                                ConversationService conversationService) {
+                                ConversationService conversationService,
+                                AttachmentRepository attachmentRepository) {
         this.sessionRepository = sessionRepository;
         this.conversationRepository = conversationRepository;
         this.messageRepository = messageRepository;
         this.messageMapper = messageMapper;
         this.conversationService = conversationService;
+        this.attachmentRepository = attachmentRepository;
     }
 
     @Override
@@ -85,6 +89,16 @@ public class SimulatedChatService implements ChatService {
         Message userMessage = messageMapper.toEntity(request, conversation, MessageRole.USER);
         userMessage = messageRepository.save(userMessage);
         log.info("Mensagem do usuário salva: id={}", userMessage.getId());
+
+        if (request.getAttachmentId() != null) {
+            Attachment attachment = attachmentRepository.findById(request.getAttachmentId())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Anexo não encontrado: " + request.getAttachmentId()));
+            attachment.setMessage(userMessage);
+            attachmentRepository.save(attachment);
+            userMessage.setAttachment(attachment);
+            log.info("Anexo vinculado à mensagem: attachmentId={}", attachment.getId());
+        }
 
         String simulatedResponse = generateSimulatedResponse(content);
         Message assistantMessage = new Message(conversation, MessageRole.ASSISTANT, simulatedResponse);

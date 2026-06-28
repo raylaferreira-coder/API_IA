@@ -8,6 +8,7 @@ import com.project.chat.repository.DocumentChunkRepository;
 import com.project.chat.repository.DocumentRepository;
 import com.project.chat.service.parser.ParserFactory;
 import com.project.chat.service.parser.UrlParser;
+import com.project.chat.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -155,23 +156,13 @@ public class DocumentIngestionService {
 
     public List<DocumentChunk> searchSimilar(String query, int limit) {
         float[] queryEmbedding = embeddingService.embed(query);
-        return documentChunkRepository.findSimilarChunks(toVectorString(queryEmbedding), limit);
+        return documentChunkRepository.findSimilarChunks(FileUtils.toVectorString(queryEmbedding), limit);
     }
 
     public List<DocumentChunk> searchSimilarByDocument(String query, Long documentId, int limit) {
         float[] queryEmbedding = embeddingService.embed(query);
         return documentChunkRepository.findSimilarChunksByDocument(
-                documentId, toVectorString(queryEmbedding), limit);
-    }
-
-    public static String toVectorString(float[] embedding) {
-        StringBuilder sb = new StringBuilder("[");
-        for (int i = 0; i < embedding.length; i++) {
-            if (i > 0) sb.append(",");
-            sb.append(embedding[i]);
-        }
-        sb.append("]");
-        return sb.toString();
+                documentId, FileUtils.toVectorString(queryEmbedding), limit);
     }
 
     private String extractTitle(String rawText, String url) {
