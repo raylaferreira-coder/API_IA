@@ -1,10 +1,10 @@
 package com.project.chat.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.chat.config.RagWebhookProperties;
 import com.project.chat.entity.DocumentStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -22,50 +22,66 @@ public class WebhookService {
 
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
-    private final String webhookUrl;
-    private final boolean enabled;
+    private final RagWebhookProperties properties;
 
-    public WebhookService(
-            @Value("${n8n.webhook.url:}") String webhookUrl,
-            @Value("${n8n.webhook.enabled:false}") boolean enabled) {
+    public WebhookService(RagWebhookProperties properties) {
         this.httpClient = HttpClient.newHttpClient();
         this.objectMapper = new ObjectMapper();
-        this.webhookUrl = webhookUrl;
-        this.enabled = enabled;
+        this.properties = properties;
     }
 
     public void notify(Long documentId, String fileName, DocumentStatus status, int chunks, long processingTime) {
-        if (!enabled || webhookUrl == null || webhookUrl.isBlank()) {
+        if (!properties.isEnabled() || properties.getUrl() == null || properties.getUrl().isBlank()) {
             return;
         }
 
-        try {
-            Map<String, Object> payload = Map.of(
-                    "documentId", documentId,
-                    "fileName", fileName != null ? fileName : "",
-                    "status", status != null ? status.name() : "UNKNOWN",
-                    "chunks", chunks,
-                    "embeddingModel", "nomic-embed-text",
-                    "processingTime", processingTime,
-                    "timestamp", LocalDateTime.now().toString()
-            );
+        Map<String, Object> payload = Map.of(
+                "documentId", documentId,
+                "fileName", fileName != null ? fileName : "",
+                "status", status != null ? status.name() : "UNKNOWN",
+                "chunks", chunks,
+                "embeddingModel", "nomic-embed-text",
+                "processingTime", processingTime,
+                "timestamp", LocalDateTime.now().toString()
+        );
 
-            String json = objectMapper.writeValueAsString(payload);
+        int maxAttempts = Math.max(1, properties.getRetryAttempts());
+        int delayMs = Math.max(0, properties.getRetryDelay());
+        Exception lastException = null;
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(webhookUrl))
-                    .header("Content-Type", "application/json")
-                    .timeout(Duration.ofSeconds(10))
-                    .POST(HttpRequest.BodyPublishers.ofString(json))
-                    .build();
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                String json = objectMapper.writeValueAsString(payload);
 
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(properties.getUrl()))
+                        .header("Content-Type", "application/json")
+                        .timeout(Duration.ofSeconds(10))
+                        .POST(HttpRequest.BodyPublishers.ofString(json))
+                        .build();
 
-            log.info("Webhook n8n enviado: status={}, documentId={}", response.statusCode(), documentId);
+                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-        } catch (Exception e) {
-            log.warn("Falha ao enviar webhook n8n (documentId={}): {}", documentId, e.getMessage());
+                log.info("Webhook n8n enviado: status={}, documentId={}, tentativa={}/{}",
+                        response.statusCode(), documentId, attempt, maxAttempts);
+                return;
+
+            } catch (Exception e) {
+                lastException = e;
+                log.warn("Falha ao enviar webhook n8n (documentId={}, tentativa={}/{}): {}",
+                        documentId, attempt, maxAttempts, e.getMessage());
+
+                if (attempt < maxAttempts) {
+                    try {
+                        Thread.sleep(delayMs);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
+                }
+            }
         }
-    }
 
+        log.error("Webhook n8n falhou após {} tentativas (documentId={})", maxAttempts, documentId, lastException);
+    }
 }

@@ -6,6 +6,7 @@ public class HealthResponse {
 
     private String status;
     private String database;
+    private String ollama;
     private String diskSpace;
     private LocalDateTime timestamp;
     private String version;
@@ -13,9 +14,10 @@ public class HealthResponse {
     public HealthResponse() {
     }
 
-    public HealthResponse(String status, String database, String diskSpace, LocalDateTime timestamp, String version) {
+    public HealthResponse(String status, String database, String ollama, String diskSpace, LocalDateTime timestamp, String version) {
         this.status = status;
         this.database = database;
+        this.ollama = ollama;
         this.diskSpace = diskSpace;
         this.timestamp = timestamp;
         this.version = version;
@@ -35,6 +37,14 @@ public class HealthResponse {
 
     public void setDatabase(String database) {
         this.database = database;
+    }
+
+    public String getOllama() {
+        return ollama;
+    }
+
+    public void setOllama(String ollama) {
+        this.ollama = ollama;
     }
 
     public String getDiskSpace() {

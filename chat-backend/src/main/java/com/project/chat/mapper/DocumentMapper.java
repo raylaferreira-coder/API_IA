@@ -13,34 +13,32 @@ public class DocumentMapper {
     public DocumentResponse toDocumentResponse(Document document) {
         return new DocumentResponse(
                 document.getId(),
-                document.getTitle(),
-                document.getSourceUrl(),
+                document.getFileName(),
                 document.getSourceType(),
+                document.getFileSize(),
                 document.getStatus(),
-                document.getErrorMessage(),
-                document.getChunkCount(),
-                document.getCreatedAt(),
-                document.getUpdatedAt()
+                document.getTotalChunks(),
+                document.getCreatedAt()
         );
     }
 
     public DocumentChunkResponse toChunkResponse(DocumentChunk chunk) {
-        return new DocumentChunkResponse(
+        DocumentChunkResponse response = new DocumentChunkResponse(
                 chunk.getId(),
                 chunk.getDocumentId(),
                 chunk.getChunkIndex(),
-                chunk.getContent(),
-                chunk.getTokenCount()
+                chunk.getContent()
         );
+        return response;
     }
 
     public IngestionResponse toIngestionResponse(Document document, String message) {
         return new IngestionResponse(
                 document.getId(),
-                document.getTitle(),
+                document.getFileName(),
                 document.getStatus(),
-                document.getChunkCount(),
-                document.getCreatedAt(),
+                document.getTotalChunks(),
+                0L,
                 message
         );
     }

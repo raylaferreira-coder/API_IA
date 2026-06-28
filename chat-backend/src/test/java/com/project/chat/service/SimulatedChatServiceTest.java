@@ -60,6 +60,7 @@ class SimulatedChatServiceTest {
 
         when(sessionRepository.findBySessionId("session-1")).thenReturn(Optional.of(session));
         when(conversationRepository.save(any(Conversation.class))).thenReturn(conversation);
+        when(messageMapper.toEntity(any(), any(), any())).thenReturn(userMsg);
         when(messageRepository.save(any(Message.class)))
                 .thenReturn(userMsg)
                 .thenReturn(assistantMsg);

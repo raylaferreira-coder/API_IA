@@ -7,11 +7,15 @@ import com.project.chat.exception.IngestionException;
 import com.project.chat.repository.DocumentChunkRepository;
 import com.project.chat.repository.DocumentRepository;
 import com.project.chat.service.parser.ParserFactory;
+import com.project.chat.service.parser.UrlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +27,7 @@ public class DocumentIngestionService {
     private final DocumentRepository documentRepository;
     private final DocumentChunkRepository documentChunkRepository;
     private final ParserFactory parserFactory;
+    private final UrlParser urlParser;
     private final ChunkService chunkService;
     private final EmbeddingService embeddingService;
     private final WebhookService webhookService;
@@ -30,12 +35,14 @@ public class DocumentIngestionService {
     public DocumentIngestionService(DocumentRepository documentRepository,
                                     DocumentChunkRepository documentChunkRepository,
                                     ParserFactory parserFactory,
+                                    UrlParser urlParser,
                                     ChunkService chunkService,
                                     EmbeddingService embeddingService,
                                     WebhookService webhookService) {
         this.documentRepository = documentRepository;
         this.documentChunkRepository = documentChunkRepository;
         this.parserFactory = parserFactory;
+        this.urlParser = urlParser;
         this.chunkService = chunkService;
         this.embeddingService = embeddingService;
         this.webhookService = webhookService;
@@ -45,7 +52,7 @@ public class DocumentIngestionService {
     public Document ingestFromUrl(String url) {
         long startTime = System.currentTimeMillis();
         try {
-            String rawText = parserFactory.getParser("url").parse(url);
+            String rawText = urlParser.parseUrl(url);
             String title = extractTitle(rawText, url);
 
             Document document = new Document(title, url, "url");
@@ -59,7 +66,7 @@ public class DocumentIngestionService {
             log.info("Documento processado com sucesso: id={}, url={}", document.getId(), url);
 
             webhookService.notify(document.getId(), url, DocumentStatus.COMPLETED,
-                    document.getChunkCount(), System.currentTimeMillis() - startTime);
+                    document.getTotalChunks(), System.currentTimeMillis() - startTime);
 
             return document;
 
@@ -92,15 +99,17 @@ public class DocumentIngestionService {
             document.setStatus(DocumentStatus.PROCESSING);
             documentRepository.save(document);
 
-            String rawText = parserFactory.getParser(sourceType).parse(filePath);
-            processDocument(document, rawText);
+            try (InputStream inputStream = new FileInputStream(filePath)) {
+                String rawText = parserFactory.getParser(sourceType).parse(inputStream);
+                processDocument(document, rawText);
+            }
 
             document.setStatus(DocumentStatus.COMPLETED);
             documentRepository.save(document);
             log.info("Arquivo processado com sucesso: id={}, path={}", document.getId(), filePath);
 
             webhookService.notify(document.getId(), filePath, DocumentStatus.COMPLETED,
-                    document.getChunkCount(), System.currentTimeMillis() - startTime);
+                    document.getTotalChunks(), System.currentTimeMillis() - startTime);
 
         } catch (Exception e) {
             document.setStatus(DocumentStatus.FAILED);
@@ -121,11 +130,11 @@ public class DocumentIngestionService {
         List<String> chunks = chunkService.chunkText(rawText);
         log.info("Gerando {} chunks para o documento {}", chunks.size(), document.getId());
 
-        List<float[]> embeddings = embeddingService.generateEmbeddings(chunks);
+        List<float[]> embeddings = embeddingService.embedAll(chunks);
 
         for (int i = 0; i < chunks.size(); i++) {
             DocumentChunk chunk = new DocumentChunk(
-                    document.getId(),
+                    document,
                     i,
                     chunks.get(i),
                     chunkService.estimateTokens(chunks.get(i))
@@ -136,16 +145,21 @@ public class DocumentIngestionService {
             documentChunkRepository.save(chunk);
         }
 
-        document.setChunkCount(chunks.size());
+        document.setTotalChunks(chunks.size());
+    }
+
+    @Transactional
+    public void updateDocument(Document document) {
+        documentRepository.save(document);
     }
 
     public List<DocumentChunk> searchSimilar(String query, int limit) {
-        float[] queryEmbedding = embeddingService.generateEmbedding(query);
+        float[] queryEmbedding = embeddingService.embed(query);
         return documentChunkRepository.findSimilarChunks(toVectorString(queryEmbedding), limit);
     }
 
     public List<DocumentChunk> searchSimilarByDocument(String query, Long documentId, int limit) {
-        float[] queryEmbedding = embeddingService.generateEmbedding(query);
+        float[] queryEmbedding = embeddingService.embed(query);
         return documentChunkRepository.findSimilarChunksByDocument(
                 documentId, toVectorString(queryEmbedding), limit);
     }

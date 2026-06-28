@@ -32,7 +32,7 @@ class ChatControllerTest {
 
     @Test
     void sendMessage_ShouldReturn200() throws Exception {
-        ChatRequest request = new ChatRequest("session-1", null, "Olá", null);
+        ChatRequest request = new ChatRequest("a1b2c3d4-e5f6-7890-abcd-ef1234567890", null, "Olá", null);
         ChatResponse response = new ChatResponse(null, null, 1L);
 
         when(chatService.sendMessage(any(ChatRequest.class))).thenReturn(response);

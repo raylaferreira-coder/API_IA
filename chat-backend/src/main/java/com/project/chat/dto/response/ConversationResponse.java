@@ -4,23 +4,23 @@ import java.util.List;
 
 public class ConversationResponse {
 
-    private Long conversationId;
+    private Long id;
     private List<MessageResponse> messages;
 
     public ConversationResponse() {
     }
 
-    public ConversationResponse(Long conversationId, List<MessageResponse> messages) {
-        this.conversationId = conversationId;
+    public ConversationResponse(Long id, List<MessageResponse> messages) {
+        this.id = id;
         this.messages = messages;
     }
 
-    public Long getConversationId() {
-        return conversationId;
+    public Long getId() {
+        return id;
     }
 
-    public void setConversationId(Long conversationId) {
-        this.conversationId = conversationId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public List<MessageResponse> getMessages() {

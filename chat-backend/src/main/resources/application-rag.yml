@@ -3,10 +3,10 @@ spring:
   # Database — a ser preenchido pelo dev de banco
   # ═══════════════════════════════════════════════
   datasource:
-    url: ${DATABASE_URL}
+    url: jdbc:postgresql://localhost:5432/chatdb
     driver-class-name: org.postgresql.Driver
-    username: ${DATABASE_USERNAME}
-    password: ${DATABASE_PASSWORD}
+    username: postgres
+    password: postgres
     hikari:
       maximum-pool-size: 10
       minimum-idle: 2
@@ -20,9 +20,24 @@ spring:
       hibernate:
         format_sql: false
 
-ollama:
-  base-url: ${OLLAMA_URL:http://localhost:11434}
-  embedding-model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
+rag:
+  topK: ${RAG_TOP_K:5}
+  ollama:
+    url: ${OLLAMA_URL:http://localhost:11434}
+    model: ${OLLAMA_MODEL:llama3.2}
+    embedding-model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
+    connect-timeout: ${OLLAMA_CONNECT_TIMEOUT:5s}
+    read-timeout: ${OLLAMA_READ_TIMEOUT:30s}
+    temperature: ${OLLAMA_TEMPERATURE:0.7}
+    max-tokens: ${OLLAMA_MAX_TOKENS:2048}
+  chunking:
+    size: ${CHUNK_SIZE:800}
+    overlap: ${CHUNK_OVERLAP:120}
+  webhook:
+    url: ${N8N_WEBHOOK_URL:http://localhost:5678/webhook/ingestion-complete}
+    enabled: ${N8N_WEBHOOK_ENABLED:true}
+    retry-attempts: ${N8N_WEBHOOK_RETRY_ATTEMPTS:3}
+    retry-delay: ${N8N_WEBHOOK_RETRY_DELAY:1000}
 
 ai:
   agent:
@@ -30,16 +45,6 @@ ai:
     model: ${OLLAMA_MODEL:llama3.2}
     temperature: ${AI_AGENT_TEMPERATURE:0.7}
     max-tokens: ${AI_AGENT_MAX_TOKENS:2048}
-
-rag:
-  chunking:
-    size: ${CHUNK_SIZE:800}
-    overlap: ${CHUNK_OVERLAP:120}
-  webhook:
-    url: ${N8N_WEBHOOK_URL:http://localhost:5678/webhook/ingestion-complete}
-    enabled: true
-    retry-attempts: 3
-    retry-delay: 1000
 
 logging:
   level:

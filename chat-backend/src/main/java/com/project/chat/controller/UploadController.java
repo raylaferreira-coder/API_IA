@@ -17,13 +17,11 @@ public class UploadController {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<UploadResponse> uploadFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<UploadResponse> uploadFile(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("sessionId") String sessionId) {
 
-        if (file.isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        UploadResponse response = uploadService.uploadFile(file);
+        UploadResponse response = uploadService.uploadFile(file, sessionId);
         return ResponseEntity.ok(response);
     }
 }

@@ -5,6 +5,8 @@ import org.hibernate.annotations.Array;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "document_chunks", indexes = {
     @Index(name = "idx_chunk_document_id", columnList = "document_id")
@@ -15,8 +17,9 @@ public class DocumentChunk {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Long documentId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "document_id", nullable = false)
+    private Document document;
 
     @Column(nullable = false)
     private int chunkIndex;
@@ -25,17 +28,20 @@ public class DocumentChunk {
     private String content;
 
     @JdbcTypeCode(SqlTypes.VECTOR)
-    @Array(length = 1536)
+    @Array(length = 768)
     @Column(name = "embedding")
     private float[] embedding;
 
     @Column(nullable = false)
     private int tokenCount;
 
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
     public DocumentChunk() {}
 
-    public DocumentChunk(Long documentId, int chunkIndex, String content, int tokenCount) {
-        this.documentId = documentId;
+    public DocumentChunk(Document document, int chunkIndex, String content, int tokenCount) {
+        this.document = document;
         this.chunkIndex = chunkIndex;
         this.content = content;
         this.tokenCount = tokenCount;
@@ -44,8 +50,12 @@ public class DocumentChunk {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public Long getDocumentId() { return documentId; }
-    public void setDocumentId(Long documentId) { this.documentId = documentId; }
+    public Document getDocument() { return document; }
+    public void setDocument(Document document) { this.document = document; }
+
+    public Long getDocumentId() {
+        return document != null ? document.getId() : null;
+    }
 
     public int getChunkIndex() { return chunkIndex; }
     public void setChunkIndex(int chunkIndex) { this.chunkIndex = chunkIndex; }
@@ -59,11 +69,14 @@ public class DocumentChunk {
     public int getTokenCount() { return tokenCount; }
     public void setTokenCount(int tokenCount) { this.tokenCount = tokenCount; }
 
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
     @Override
     public String toString() {
         return "DocumentChunk{" +
                 "id=" + id +
-                ", documentId=" + documentId +
+                ", documentId=" + getDocumentId() +
                 ", chunkIndex=" + chunkIndex +
                 ", tokenCount=" + tokenCount +
                 '}';

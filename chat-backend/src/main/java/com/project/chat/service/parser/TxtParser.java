@@ -4,8 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.IOException;
+import java.io.InputStream;
 
 @Component
 public class TxtParser implements DocumentParser {
@@ -13,9 +13,9 @@ public class TxtParser implements DocumentParser {
     private static final Logger log = LoggerFactory.getLogger(TxtParser.class);
 
     @Override
-    public String parse(String filePath) throws Exception {
-        log.info("Lendo arquivo TXT: {}", filePath);
-        String content = Files.readString(Path.of(filePath));
+    public String parse(InputStream inputStream) throws IOException {
+        log.info("Lendo TXT a partir de InputStream");
+        String content = new String(inputStream.readAllBytes());
         log.info("TXT lido: {} caracteres", content.length());
         return content;
     }

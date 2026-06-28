@@ -4,6 +4,7 @@ import com.project.chat.dto.response.HealthResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import javax.sql.DataSource;
@@ -16,6 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.sql.Connection;
 
 @WebMvcTest(HealthController.class)
+@TestPropertySource(properties = "ollama.base-url=http://localhost:1")
 class HealthControllerTest {
 
     @Autowired
@@ -32,7 +34,9 @@ class HealthControllerTest {
 
         mockMvc.perform(get("/api/health"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("UP"));
+                .andExpect(jsonPath("$.status").value("DEGRADED"))
+                .andExpect(jsonPath("$.database").value("UP"))
+                .andExpect(jsonPath("$.ollama").value("DOWN"));
     }
 
     private Connection mockConnection() {

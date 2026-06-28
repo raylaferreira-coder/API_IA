@@ -1,8 +1,8 @@
 package com.project.chat.mapper;
 
 import com.project.chat.dto.request.ChatRequest;
+import com.project.chat.dto.response.AttachmentResponse;
 import com.project.chat.dto.response.MessageResponse;
-import com.project.chat.entity.Attachment;
 import com.project.chat.entity.Conversation;
 import com.project.chat.entity.Message;
 import com.project.chat.entity.MessageRole;
@@ -21,9 +21,16 @@ public class MessageMapper {
 
     @Transactional(readOnly = true)
     public MessageResponse toResponse(Message message) {
-        Attachment attachment = null;
+        AttachmentResponse attachment = null;
         if (message.getAttachment() != null) {
-            attachment = message.getAttachment();
+            var entity = message.getAttachment();
+            attachment = new AttachmentResponse(
+                    entity.getId(),
+                    entity.getFileName(),
+                    entity.getFileType(),
+                    entity.getFileSize(),
+                    entity.getUploadedAt()
+            );
         }
         return new MessageResponse(
                 message.getId(),

@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 
 @Component
@@ -15,7 +17,11 @@ public class UrlParser implements DocumentParser {
     private static final Logger log = LoggerFactory.getLogger(UrlParser.class);
 
     @Override
-    public String parse(String url) throws Exception {
+    public String parse(InputStream inputStream) throws IOException {
+        throw new UnsupportedOperationException("UrlParser não suporta parsing por InputStream. Use parseUrl(String).");
+    }
+
+    public String parseUrl(String url) throws IOException {
         URI uri = URI.create(url);
         String scheme = uri.getScheme();
         String host = uri.getHost();
@@ -58,6 +64,11 @@ public class UrlParser implements DocumentParser {
 
         String result = sb.toString().trim();
         log.info("URL processada: {} caracteres extraídos", result.length());
+
+        if (result.isEmpty()) {
+            throw new com.project.chat.exception.ValidationException("Não foi possível extrair conteúdo textual da URL fornecida.");
+        }
+
         return result;
     }
 
