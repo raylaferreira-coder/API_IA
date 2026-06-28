@@ -44,6 +44,8 @@ class RagChatServiceTest {
     private PromptBuilder promptBuilder;
     @Mock
     private OllamaChatService ollamaChatService;
+    @Mock
+    private com.project.chat.repository.AttachmentRepository attachmentRepository;
 
     private RagChatService ragChatService;
 
@@ -54,7 +56,7 @@ class RagChatServiceTest {
                 messageRepository, messageMapper,
                 conversationService, embeddingService,
                 retrievalService, promptBuilder,
-                ollamaChatService, 5);
+                ollamaChatService, attachmentRepository, 5);
     }
 
     @Test

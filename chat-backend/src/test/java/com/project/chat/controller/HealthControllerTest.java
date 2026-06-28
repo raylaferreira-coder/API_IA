@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.sql.Connection;
 
 @WebMvcTest(HealthController.class)
-@TestPropertySource(properties = "ollama.base-url=http://localhost:1")
+@TestPropertySource(properties = "rag.ollama.url=http://localhost:1")
 class HealthControllerTest {
 
     @Autowired

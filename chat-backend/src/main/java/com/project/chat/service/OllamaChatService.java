@@ -26,18 +26,21 @@ public class OllamaChatService {
     private final String model;
     private final double temperature;
     private final int maxTokens;
+    private final Duration readTimeout;
     private final ObjectMapper objectMapper;
 
     public OllamaChatService(HttpClient httpClient,
                               @Value("${rag.ollama.url:http://localhost:11434}") String baseUrl,
                               @Value("${rag.ollama.model:llama3.2}") String model,
                               @Value("${rag.ollama.temperature:0.7}") double temperature,
-                              @Value("${rag.ollama.max-tokens:2048}") int maxTokens) {
+                              @Value("${rag.ollama.max-tokens:2048}") int maxTokens,
+                              @Value("${rag.ollama.read-timeout:120s}") Duration readTimeout) {
         this.httpClient = httpClient;
         this.baseUrl = baseUrl.replaceAll("/+$", "");
         this.model = model;
         this.temperature = temperature;
         this.maxTokens = maxTokens;
+        this.readTimeout = readTimeout;
         this.objectMapper = new ObjectMapper();
     }
 
@@ -60,7 +63,7 @@ public class OllamaChatService {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .header("Content-Type", "application/json")
-                    .timeout(Duration.ofSeconds(30))
+                    .timeout(readTimeout)
                     .POST(HttpRequest.BodyPublishers.ofString(jsonRequest))
                     .build();
 
