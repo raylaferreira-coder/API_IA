@@ -14,10 +14,10 @@ services:
       ollama serve &
       sleep 5 &&
       echo 'Baixando modelo LLM...' &&
-      ollama pull llama3 &&
+      ollama pull gemma4 &&
       echo 'Baixando nomic-embed-text...' &&
       ollama pull nomic-embed-text &&
-      echo 'Modelos prontos! llama3 + nomic-embed-text disponiveis' &&
+      echo 'Modelos prontos! gemma4 + nomic-embed-text disponiveis' &&
       wait
       "
     healthcheck:
@@ -46,7 +46,7 @@ services:
       - marvel-net
 
   postgres:
-    image: pgvector/pgvector:pg17
+    image: pgvector/pgvector:pg16
     container_name: postgres-marvel
     ports:
       - "5432:5432"
@@ -74,11 +74,13 @@ services:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=rag
-      - OLLAMA_BASE_URL=http://ollama:11434
+      - RAG_OLLAMA_URL=http://ollama:11434
+      - OLLAMA_MODEL=gemma4
+      - OLLAMA_EMBEDDING_MODEL=nomic-embed-text
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/chatdb
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
-      - RAG_WEBHOOK_URL=http://n8n:5678/webhook/rag
+      - RAG_WEBHOOK_URL=http://n8n:5678/webhook/ingestion-complete
     depends_on:
       ollama:
         condition: service_healthy

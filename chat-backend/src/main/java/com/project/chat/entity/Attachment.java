@@ -1,6 +1,9 @@
 package com.project.chat.entity;
 
 import jakarta.persistence.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
 @Entity
@@ -106,6 +109,17 @@ public class Attachment {
     protected void onCreate() {
         if (uploadedAt == null) {
             uploadedAt = LocalDateTime.now();
+        }
+    }
+
+    @PreRemove
+    protected void onDelete() {
+        if (storagePath != null) {
+            try {
+                Files.deleteIfExists(Paths.get(storagePath));
+            } catch (IOException e) {
+                // log não disponível aqui, silencia
+            }
         }
     }
 }

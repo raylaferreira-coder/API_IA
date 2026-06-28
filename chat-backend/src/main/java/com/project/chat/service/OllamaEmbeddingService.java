@@ -13,6 +13,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -32,10 +33,11 @@ public class OllamaEmbeddingService implements EmbeddingService {
 
     public OllamaEmbeddingService(
             @Value("${rag.ollama.url:http://localhost:11434}") String baseUrl,
-            @Value("${rag.ollama.embedding-model:nomic-embed-text}") String model) {
+            @Value("${rag.ollama.embedding-model:nomic-embed-text}") String model,
+            HttpClient httpClient) {
         this.baseUrl = baseUrl;
         this.model = model;
-        this.httpClient = HttpClient.newHttpClient();
+        this.httpClient = httpClient;
         this.objectMapper = new ObjectMapper();
         this.executor = Executors.newFixedThreadPool(5);
         log.info("Ollama Embedding Service iniciado: url={}, model={}", baseUrl, model);

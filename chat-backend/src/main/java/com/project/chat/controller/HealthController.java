@@ -27,7 +27,7 @@ public class HealthController {
     private final DataSource dataSource;
     private final HttpClient httpClient;
 
-    @Value("${ollama.base-url:http://localhost:11434}")
+    @Value("${rag.ollama.url:http://localhost:11434}")
     private String ollamaBaseUrl;
 
     @Value("${chat.version:1.0.0}")
