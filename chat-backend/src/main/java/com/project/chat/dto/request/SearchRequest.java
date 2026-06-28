@@ -11,18 +11,18 @@ public class SearchRequest {
 
     @Min(value = 1, message = "O limite mínimo é 1.")
     @Max(value = 100, message = "O limite máximo é 100.")
-    private int limit = 5;
+    private int topK = 5;
 
     public SearchRequest() {}
 
-    public SearchRequest(String query, int limit) {
+    public SearchRequest(String query, int topK) {
         this.query = query;
-        this.limit = limit;
+        this.topK = topK;
     }
 
     public String getQuery() { return query; }
     public void setQuery(String query) { this.query = query; }
 
-    public int getLimit() { return limit; }
-    public void setLimit(int limit) { this.limit = limit; }
+    public int getTopK() { return topK; }
+    public void setTopK(int topK) { this.topK = topK; }
 }

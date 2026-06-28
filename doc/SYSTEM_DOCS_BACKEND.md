@@ -52,7 +52,7 @@ O conhecimento NÃO é obtido diretamente da internet — todo o conteúdo é in
 | ORM | Spring Data JPA / Hibernate 6 |
 | Banco relacional | PostgreSQL 15+ |
 | Banco vetorial | pgvector (extensão PostgreSQL) |
-| Modelo LLM local | Ollama — `llama3` |
+| Modelo LLM local | Ollama — `llama3.2` |
 | Modelo de embedding | Ollama — `nomic-embed-text` ou `mxbai-embed-large` |
 | Orquestração | n8n |
 | Parsing de PDF | Apache PDFBox |
@@ -72,7 +72,7 @@ O conhecimento NÃO é obtido diretamente da internet — todo o conteúdo é in
 | Embedding via Ollama (modelo local) | Versionamento de anexos |
 | Indexação vetorial via pgvector | Integração com LLMs pagos (OpenAI, Claude) |
 | Busca por similaridade semântica (cosseno) | APIs pagas de qualquer tipo |
-| Geração de resposta via RAG com `llama3` | |
+| Geração de resposta via RAG com `llama3.2` | |
 | Webhook para n8n após ingestão | |
 | Ingestão de URLs (Wikipedia) | |
 | Docker Compose para ambiente completo | |
@@ -100,7 +100,7 @@ flowchart TB
     subgraph Infra["Infraestrutura"]
         F["PostgreSQL + pgvector<br/>(Relacional + Vetorial)"]
         G["Sistema de Arquivos<br/>(Armazenamento de Uploads)"]
-        H["Ollama<br/>(llama3 + nomic-embed-text)"]
+        H["Ollama<br/>(llama3.2 + nomic-embed-text)"]
         I["n8n<br/>(Orquestração)"]
     end
 
@@ -145,7 +145,7 @@ flowchart LR
     end
 
     subgraph AI["IA Local"]
-        OLLAMA["Ollama<br/>llama3 (LLM)<br/>nomic-embed-text (Embedding)"]
+        OLLAMA["Ollama<br/>llama3.2 (LLM)<br/>nomic-embed-text (Embedding)"]
     end
 
     subgraph N8N["Automação"]
@@ -294,8 +294,9 @@ public interface DocumentChunkRepository extends JpaRepository<DocumentChunk, Lo
 | `UploadResponse` | Response | attachmentId, fileName, fileType, fileSize, uploadedAt |
 | `ErrorResponse` | Response | status, error, message, timestamp, path |
 | `DocumentResponse` | Response | documentId, fileName, sourceType, status, createdAt |
+| `DocumentsListResponse` | Response | lista de documentos (`{ documents: [DocumentResponse] }`) |
 | `IngestionResponse` | Response | documentId, fileName, status, chunks, processingTime |
-| `SearchResponse` | Response | chunks encontrados com score de similaridade |
+| `SearchResultResponse` | Response | chunks encontrados com score de similaridade |
 
 ### Exception
 - Hierarquia de exceções de negócio.
@@ -680,7 +681,7 @@ erDiagram
 | URL | `/api/documents` |
 | Descrição | Lista todos os documentos indexados |
 | Payload Entrada | — |
-| Payload Saída | `List<DocumentResponse>` |
+| Payload Saída | `DocumentsListResponse` (`{ documents: [DocumentResponse] }`) |
 | Status Sucesso | `200 OK` |
 | Erros | — |
 
@@ -1110,7 +1111,7 @@ sequenceDiagram
     participant Retrieval as RetrievalService
     participant VectorDB as pgvector
     participant Prompt as PromptBuilder
-    participant Ollama as Ollama (llama3)
+    participant Ollama as Ollama (llama3.2)
     participant MsgRepo as MessageRepository
     participant DB as PostgreSQL
 
@@ -1130,7 +1131,7 @@ sequenceDiagram
     Service->>Prompt: build(pergunta, chunks)
     Prompt-->>Service: Prompt com contexto
 
-    Service->>Ollama: POST /api/generate (llama3, prompt)
+    Service->>Ollama: POST /api/generate (llama3.2, prompt)
     Ollama-->>Service: Resposta gerada
 
     Service->>MsgRepo: save(mensagem usuário)
@@ -1654,7 +1655,7 @@ Utiliza RAG (Retrieval-Augmented Generation) com modelos locais via Ollama.
 - Spring Boot 3.x
 - Spring Data JPA / Hibernate 6
 - PostgreSQL + pgvector
-- Ollama (llama3 + nomic-embed-text)
+- Ollama (llama3.2 + nomic-embed-text)
 - Apache PDFBox
 - n8n
 - Docker + Docker Compose
@@ -1706,7 +1707,7 @@ mvn test
 | `DATABASE_USER` | Prod | — | Usuário do banco |
 | `DATABASE_PASSWORD` | Prod | — | Senha do banco |
 | `OLLAMA_URL` | RAG | `http://localhost:11434` | URL do Ollama |
-| `OLLAMA_MODEL` | RAG | `llama3` | Modelo LLM |
+| `OLLAMA_MODEL` | RAG | `llama3.2` | Modelo LLM |
 | `OLLAMA_EMBEDDING_MODEL` | RAG | `nomic-embed-text` | Modelo de embedding |
 | `N8N_WEBHOOK_URL` | Não | — | URL do webhook n8n |
 | `CHUNK_SIZE` | Não | 800 | Tamanho do chunk |
@@ -1761,7 +1762,7 @@ Gerar a API REST em Java 17+ com Spring Boot 3.x para o Assistente Inteligente e
 
 - Java 17+, Spring Boot 3.x, Spring Data JPA, Hibernate 6
 - PostgreSQL 15+ com pgvector
-- Ollama (llama3 + nomic-embed-text)
+- Ollama (llama3.2 + nomic-embed-text)
 - Apache PDFBox
 - n8n
 - Docker + Docker Compose
@@ -1897,7 +1898,7 @@ Ver seção 4 (API REST) e seção 5 (Contratos JSON) deste documento.
 - Custo zero operacional.
 - Privacidade dos dados (nenhuma informação sai do ambiente local).
 - Independence de APIs externas.
-- Modelos: `llama3` (LLM) e `nomic-embed-text` (embedding).
+- Modelos: `llama3.2` (LLM) e `nomic-embed-text` (embedding).
 
 ## 15.10 pgvector como Banco Vetorial
 
@@ -1970,7 +1971,7 @@ Pergunta do Usuário
 | Embedding | `EmbeddingService` | Converte pergunta em vetor 768d |
 | Busca | `RetrievalService` | `SELECT ... ORDER BY embedding <-> :vetor LIMIT K` |
 | Prompt | `PromptBuilder` | Monta prompt com instrução + chunks + pergunta |
-| Geração | `OllamaChatService` | Chama `llama3` via API REST do Ollama |
+| Geração | `OllamaChatService` | Chama `llama3.2` via API REST do Ollama |
 | Persistência | `MessageRepository` | Salva pergunta e resposta no histórico |
 
 ## 17.3 Parâmetros
@@ -1978,7 +1979,7 @@ Pergunta do Usuário
 | Parâmetro | Valor | Local |
 |-----------|-------|-------|
 | Top K | 5 | `application.yml` |
-| Modelo LLM | `llama3` | `application.yml` |
+| Modelo LLM | `llama3.2` | `application.yml` |
 | Modelo Embedding | `nomic-embed-text` | `application.yml` |
 | Temperatura | 0.7 | `application.yml` |
 | Max tokens | 2048 | `application.yml` |
@@ -2029,7 +2030,8 @@ public class ParserFactory {
 | `PDF` | `PdfParser` | `application/pdf` |
 | `TXT` | `TxtParser` | `text/plain` |
 | `MARKDOWN` | `MarkdownParser` | `text/markdown` |
-| `HTML` | `UrlParser` (via Jsoup) | `text/html` |
+| `HTML` | `HtmlParser` (via Jsoup) | `text/html` |
+| `URL` | `UrlParser` (via Jsoup) | — |
 
 ---
 
@@ -2100,7 +2102,7 @@ Chunk 2: [680 a 1000] (680 = 800 - 120 de overlap)
 
 | Finalidade | Modelo | Tamanho do Vetor |
 |------------|--------|-------------------|
-| LLM (geração) | `llama3` | — |
+| LLM (geração) | `llama3.2` | — |
 | Embedding | `nomic-embed-text` | 768 |
 | Embedding (alternativo) | `mxbai-embed-large` | 1024 |
 
@@ -2132,7 +2134,7 @@ POST http://localhost:11434/api/generate
 Content-Type: application/json
 
 {
-  "model": "llama3",
+  "model": "llama3.2",
   "prompt": "Prompt com contexto do MCU...",
   "stream": false,
   "options": {
@@ -2156,7 +2158,7 @@ Resposta:
 rag:
   ollama:
     url: http://localhost:11434
-    model: llama3
+    model: llama3.2
     embedding-model: nomic-embed-text
     connect-timeout: 5s
     read-timeout: 30s
@@ -2166,7 +2168,7 @@ rag:
 
 - **Proibido** utilizar OpenAI, Claude ou qualquer API paga.
 - Apenas modelos locais via Ollama.
-- `llama3` para geração de texto.
+- `llama3.2` para geração de texto.
 - `nomic-embed-text` (ou `mxbai-embed-large`) para embeddings.
 
 ---
@@ -2253,7 +2255,7 @@ services:
     entrypoint: >
       sh -c "ollama serve &
       sleep 5 &&
-      ollama pull llama3 &&
+      ollama pull llama3.2 &&
       ollama pull nomic-embed-text &&
       wait"
     healthcheck:
@@ -2303,13 +2305,13 @@ volumes:
 
 | # | Inconsistência | Status |
 |---|---|---|
-| 1 | `PdfTextExtractor` atual não usa Apache PDFBox — apenas lê bytes brutos | Será substituído por `PdfParser` com Apache PDFBox |
-| 2 | AGENTS.md não existe no repositório | Incluído na seção 14 como conteúdo embutido |
-| 3 | HistoryController listado no README mas inexistente | Removido da documentação — histórico está em ChatController |
-| 4 | UploadRequest DTO existe mas não é utilizado | Marcado para remoção futura |
-| 5 | ConversationMapper viola separação ao injetar repository | Previsto para refatoração |
-| 6 | CORS duplicado (CorsConfig + WebConfig) | Previsto para consolidação |
-| 7 | createOrGetSession sempre cria nova sessão | Nome ajustado para createSession |
+| 1 | `PdfTextExtractor` não usava Apache PDFBox | Resolvido — delegado ao `PdfParser` |
+| 2 | AGENTS.md não existia no repositório | Resolvido — arquivo criado na raiz |
+| 3 | HistoryController listado no README mas inexistente | Resolvido — histórico em ChatController |
+| 4 | UploadRequest DTO existia mas não era utilizado | Resolvido — removido |
+| 5 | ConversationMapper violava separação ao injetar repository | Resolvido — injeta MessageMapper |
+| 6 | CORS duplicado (CorsConfig + WebConfig) | Resolvido — consolidado em CorsConfig |
+| 7 | createOrGetSession sempre criava nova sessão | Resolvido — renomeado para createSession |
 
 ### Fluxo de Ativação do Perfil RAG
 

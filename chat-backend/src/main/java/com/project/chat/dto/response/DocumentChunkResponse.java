@@ -2,28 +2,31 @@ package com.project.chat.dto.response;
 
 public class DocumentChunkResponse {
 
-    private Long id;
+    private Long chunkId;
     private Long documentId;
+    private String fileName;
     private int chunkIndex;
     private String content;
-    private int tokenCount;
+    private Double similarityScore;
 
     public DocumentChunkResponse() {}
 
-    public DocumentChunkResponse(Long id, Long documentId, int chunkIndex,
-                                 String content, int tokenCount) {
-        this.id = id;
+    public DocumentChunkResponse(Long chunkId, Long documentId, int chunkIndex,
+                                  String content) {
+        this.chunkId = chunkId;
         this.documentId = documentId;
         this.chunkIndex = chunkIndex;
         this.content = content;
-        this.tokenCount = tokenCount;
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getChunkId() { return chunkId; }
+    public void setChunkId(Long chunkId) { this.chunkId = chunkId; }
 
     public Long getDocumentId() { return documentId; }
     public void setDocumentId(Long documentId) { this.documentId = documentId; }
+
+    public String getFileName() { return fileName; }
+    public void setFileName(String fileName) { this.fileName = fileName; }
 
     public int getChunkIndex() { return chunkIndex; }
     public void setChunkIndex(int chunkIndex) { this.chunkIndex = chunkIndex; }
@@ -31,6 +34,6 @@ public class DocumentChunkResponse {
     public String getContent() { return content; }
     public void setContent(String content) { this.content = content; }
 
-    public int getTokenCount() { return tokenCount; }
-    public void setTokenCount(int tokenCount) { this.tokenCount = tokenCount; }
+    public Double getSimilarityScore() { return similarityScore; }
+    public void setSimilarityScore(Double similarityScore) { this.similarityScore = similarityScore; }
 }

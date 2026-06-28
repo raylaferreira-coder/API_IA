@@ -31,8 +31,8 @@ public class OllamaEmbeddingService implements EmbeddingService {
     private final ExecutorService executor;
 
     public OllamaEmbeddingService(
-            @Value("${ollama.base-url:http://localhost:11434}") String baseUrl,
-            @Value("${ollama.embedding-model:nomic-embed-text}") String model) {
+            @Value("${rag.ollama.url:http://localhost:11434}") String baseUrl,
+            @Value("${rag.ollama.embedding-model:nomic-embed-text}") String model) {
         this.baseUrl = baseUrl;
         this.model = model;
         this.httpClient = HttpClient.newHttpClient();
@@ -42,7 +42,7 @@ public class OllamaEmbeddingService implements EmbeddingService {
     }
 
     @Override
-    public float[] generateEmbedding(String text) {
+    public float[] embed(String text) {
         try {
             String input = text.length() > 8000 ? text.substring(0, 8000) : text;
 
@@ -90,9 +90,9 @@ public class OllamaEmbeddingService implements EmbeddingService {
     }
 
     @Override
-    public List<float[]> generateEmbeddings(List<String> texts) {
+    public List<float[]> embedAll(List<String> texts) {
         List<CompletableFuture<float[]>> futures = texts.stream()
-                .map(text -> CompletableFuture.supplyAsync(() -> generateEmbedding(text), executor)
+                .map(text -> CompletableFuture.supplyAsync(() -> embed(text), executor)
                         .orTimeout(30, TimeUnit.SECONDS))
                 .toList();
         return futures.stream()

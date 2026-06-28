@@ -6,38 +6,38 @@ import java.time.LocalDateTime;
 public class IngestionResponse {
 
     private Long documentId;
-    private String title;
+    private String fileName;
     private DocumentStatus status;
-    private int chunkCount;
-    private LocalDateTime createdAt;
+    private int chunks;
+    private long processingTime;
     private String message;
 
     public IngestionResponse() {}
 
-    public IngestionResponse(Long documentId, String title, DocumentStatus status,
-                             int chunkCount, LocalDateTime createdAt, String message) {
+    public IngestionResponse(Long documentId, String fileName, DocumentStatus status,
+                             int chunks, long processingTime, String message) {
         this.documentId = documentId;
-        this.title = title;
+        this.fileName = fileName;
         this.status = status;
-        this.chunkCount = chunkCount;
-        this.createdAt = createdAt;
+        this.chunks = chunks;
+        this.processingTime = processingTime;
         this.message = message;
     }
 
     public Long getDocumentId() { return documentId; }
     public void setDocumentId(Long documentId) { this.documentId = documentId; }
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+    public String getFileName() { return fileName; }
+    public void setFileName(String fileName) { this.fileName = fileName; }
 
     public DocumentStatus getStatus() { return status; }
     public void setStatus(DocumentStatus status) { this.status = status; }
 
-    public int getChunkCount() { return chunkCount; }
-    public void setChunkCount(int chunkCount) { this.chunkCount = chunkCount; }
+    public int getChunks() { return chunks; }
+    public void setChunks(int chunks) { this.chunks = chunks; }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public long getProcessingTime() { return processingTime; }
+    public void setProcessingTime(long processingTime) { this.processingTime = processingTime; }
 
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }

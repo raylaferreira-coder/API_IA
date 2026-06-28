@@ -7,4 +7,6 @@ public interface RetrievalService {
 
     List<DocumentChunk> search(String query, int topK);
 
+    List<DocumentChunk> search(float[] vector, int topK);
+
 }

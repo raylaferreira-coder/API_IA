@@ -1,21 +1,22 @@
 package com.project.chat.service;
 
-import com.project.chat.ai.MarvelAiAgent;
 import com.project.chat.dto.request.ChatRequest;
 import com.project.chat.dto.response.ChatResponse;
 import com.project.chat.dto.response.ConversationResponse;
 import com.project.chat.dto.response.HistoryResponse;
 import com.project.chat.dto.response.MessageResponse;
 import com.project.chat.entity.*;
+import com.project.chat.exception.LlmServiceException;
 import com.project.chat.exception.ResourceNotFoundException;
+import com.project.chat.exception.SessionConflictException;
 import com.project.chat.exception.ValidationException;
 import com.project.chat.mapper.MessageMapper;
 import com.project.chat.repository.ConversationRepository;
-import com.project.chat.repository.DocumentChunkRepository;
 import com.project.chat.repository.MessageRepository;
 import com.project.chat.repository.SessionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +29,7 @@ import java.util.List;
 public class RagChatService implements ChatService {
 
     private static final Logger log = LoggerFactory.getLogger(RagChatService.class);
-    private static final int MAX_CONTEXT_CHUNKS = 5;
+    private final int topK;
 
     private final SessionRepository sessionRepository;
     private final ConversationRepository conversationRepository;
@@ -36,9 +37,9 @@ public class RagChatService implements ChatService {
     private final MessageMapper messageMapper;
     private final ConversationService conversationService;
     private final EmbeddingService embeddingService;
-    private final DocumentChunkRepository documentChunkRepository;
+    private final RetrievalService retrievalService;
     private final PromptBuilder promptBuilder;
-    private final MarvelAiAgent marvelAiAgent;
+    private final OllamaChatService ollamaChatService;
 
     public RagChatService(SessionRepository sessionRepository,
                           ConversationRepository conversationRepository,
@@ -46,18 +47,20 @@ public class RagChatService implements ChatService {
                           MessageMapper messageMapper,
                           ConversationService conversationService,
                           EmbeddingService embeddingService,
-                          DocumentChunkRepository documentChunkRepository,
+                          RetrievalService retrievalService,
                           PromptBuilder promptBuilder,
-                          MarvelAiAgent marvelAiAgent) {
+                          OllamaChatService ollamaChatService,
+                          @Value("${rag.topK:5}") int topK) {
         this.sessionRepository = sessionRepository;
         this.conversationRepository = conversationRepository;
         this.messageRepository = messageRepository;
         this.messageMapper = messageMapper;
         this.conversationService = conversationService;
         this.embeddingService = embeddingService;
-        this.documentChunkRepository = documentChunkRepository;
+        this.retrievalService = retrievalService;
         this.promptBuilder = promptBuilder;
-        this.marvelAiAgent = marvelAiAgent;
+        this.ollamaChatService = ollamaChatService;
+        this.topK = topK;
     }
 
     @Override
@@ -73,6 +76,10 @@ public class RagChatService implements ChatService {
         Session session = sessionRepository.findBySessionId(request.getSessionId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Sessão não encontrada: " + request.getSessionId()));
+
+        if (session.isExpired()) {
+            throw new SessionConflictException("Sessão expirada: " + request.getSessionId());
+        }
 
         session.setLastActivity(LocalDateTime.now());
         sessionRepository.save(session);
@@ -105,13 +112,14 @@ public class RagChatService implements ChatService {
         // RAG flow: embedding → retrieval → prompt builder → Ollama → response
         String answer;
         try {
-            List<DocumentChunk> chunks = searchRelevantChunks(content);
-            String chunkContext = promptBuilder.buildChunkContext(chunks);
-            answer = marvelAiAgent.askWithContext(content, chunkContext);
+            float[] questionVector = embeddingService.embed(content);
+            List<DocumentChunk> chunks = retrievalService.search(questionVector, topK);
+            String finalPrompt = promptBuilder.buildWithContext(content, chunks);
+            answer = ollamaChatService.generate(finalPrompt);
             log.info("Resposta gerada via RAG ({} caracteres)", answer.length());
         } catch (Exception e) {
-            log.warn("Fluxo RAG falhou, usando fallback: {}", e.getMessage());
-            answer = marvelAiAgent.ask(content);
+            log.error("Fluxo RAG falhou: {}", e.getMessage(), e);
+            throw new LlmServiceException("O serviço de IA local está indisponível. Verifique se o Ollama está em execução.", e);
         }
 
         Message assistantMessage = new Message(conversation, MessageRole.ASSISTANT, answer);
@@ -122,27 +130,6 @@ public class RagChatService implements ChatService {
         MessageResponse assistantMsgResponse = messageMapper.toResponse(assistantMessage);
 
         return new ChatResponse(userMsgResponse, assistantMsgResponse, conversation.getId());
-    }
-
-    private List<DocumentChunk> searchRelevantChunks(String query) {
-        try {
-            float[] queryEmbedding = embeddingService.generateEmbedding(query);
-            String vectorStr = toVectorString(queryEmbedding);
-            return documentChunkRepository.findSimilarChunks(vectorStr, MAX_CONTEXT_CHUNKS);
-        } catch (Exception e) {
-            log.warn("Erro ao buscar chunks relevantes: {}", e.getMessage());
-            return List.of();
-        }
-    }
-
-    private static String toVectorString(float[] embedding) {
-        StringBuilder sb = new StringBuilder("[");
-        for (int i = 0; i < embedding.length; i++) {
-            if (i > 0) sb.append(",");
-            sb.append(embedding[i]);
-        }
-        sb.append("]");
-        return sb.toString();
     }
 
     @Override

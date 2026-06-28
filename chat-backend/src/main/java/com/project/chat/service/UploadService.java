@@ -2,10 +2,14 @@ package com.project.chat.service;
 
 import com.project.chat.dto.response.UploadResponse;
 import com.project.chat.entity.Attachment;
+import com.project.chat.entity.Session;
 import com.project.chat.exception.FileTooLargeException;
+import com.project.chat.exception.ResourceNotFoundException;
+import com.project.chat.exception.SessionConflictException;
 import com.project.chat.exception.UnsupportedFileTypeException;
 import com.project.chat.mapper.AttachmentMapper;
 import com.project.chat.repository.AttachmentRepository;
+import com.project.chat.repository.SessionRepository;
 import com.project.chat.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,20 +28,30 @@ public class UploadService {
     private final AttachmentRepository attachmentRepository;
     private final FileStorageService fileStorageService;
     private final AttachmentMapper attachmentMapper;
+    private final SessionRepository sessionRepository;
 
     public UploadService(AttachmentRepository attachmentRepository,
                          FileStorageService fileStorageService,
-                         AttachmentMapper attachmentMapper) {
+                         AttachmentMapper attachmentMapper,
+                         SessionRepository sessionRepository) {
         this.attachmentRepository = attachmentRepository;
         this.fileStorageService = fileStorageService;
         this.attachmentMapper = attachmentMapper;
+        this.sessionRepository = sessionRepository;
     }
 
     @Transactional
-    public UploadResponse uploadFile(MultipartFile file) {
+    public UploadResponse uploadFile(MultipartFile file, String sessionId) {
         if (file == null || file.isEmpty()) {
             log.warn("Tentativa de upload sem arquivo.");
             throw new IllegalArgumentException("Nenhum arquivo foi enviado.");
+        }
+
+        Session session = sessionRepository.findBySessionId(sessionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Sessão não encontrada: " + sessionId));
+
+        if (session.isExpired()) {
+            throw new SessionConflictException("Sessão expirada: " + sessionId);
         }
 
         if (!FileUtils.isWithinSizeLimit(file.getSize())) {

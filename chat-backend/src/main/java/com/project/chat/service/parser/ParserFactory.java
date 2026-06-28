@@ -1,6 +1,6 @@
 package com.project.chat.service.parser;
 
-import com.project.chat.exception.IngestionException;
+import com.project.chat.exception.UnsupportedFileTypeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -23,7 +23,7 @@ public class ParserFactory {
         return parsers.stream()
                 .filter(p -> p.supports(sourceType))
                 .findFirst()
-                .orElseThrow(() -> new IngestionException(
-                        "Nenhum parser encontrado para o tipo: " + sourceType));
+                .orElseThrow(() -> new UnsupportedFileTypeException(
+                        "Formato de arquivo não suportado para indexação. Utilize .pdf, .txt, .md ou .html."));
     }
 }

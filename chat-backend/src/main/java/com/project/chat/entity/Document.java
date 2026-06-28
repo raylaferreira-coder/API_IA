@@ -11,11 +11,11 @@ public class Document {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String title;
+    @Column(name = "title", nullable = false)
+    private String fileName;
 
-    @Column(columnDefinition = "TEXT")
-    private String sourceUrl;
+    @Column(name = "source_url", columnDefinition = "TEXT")
+    private String sourcePath;
 
     @Column(nullable = false)
     private String sourceType;
@@ -24,11 +24,13 @@ public class Document {
     @Enumerated(EnumType.STRING)
     private DocumentStatus status = DocumentStatus.PENDING;
 
+    private Long fileSize;
+
     @Column(columnDefinition = "TEXT")
     private String errorMessage;
 
-    @Column(nullable = false)
-    private int chunkCount = 0;
+    @Column(name = "chunk_count", nullable = false)
+    private int totalChunks = 0;
 
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -37,23 +39,26 @@ public class Document {
 
     public Document() {}
 
-    public Document(String title, String sourceUrl, String sourceType) {
-        this.title = title;
-        this.sourceUrl = sourceUrl;
+    public Document(String fileName, String sourcePath, String sourceType) {
+        this.fileName = fileName;
+        this.sourcePath = sourcePath;
         this.sourceType = sourceType;
     }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+    public String getFileName() { return fileName; }
+    public void setFileName(String fileName) { this.fileName = fileName; }
 
-    public String getSourceUrl() { return sourceUrl; }
-    public void setSourceUrl(String sourceUrl) { this.sourceUrl = sourceUrl; }
+    public String getSourcePath() { return sourcePath; }
+    public void setSourcePath(String sourcePath) { this.sourcePath = sourcePath; }
 
     public String getSourceType() { return sourceType; }
     public void setSourceType(String sourceType) { this.sourceType = sourceType; }
+
+    public Long getFileSize() { return fileSize; }
+    public void setFileSize(Long fileSize) { this.fileSize = fileSize; }
 
     public DocumentStatus getStatus() { return status; }
     public void setStatus(DocumentStatus status) { this.status = status; }
@@ -61,8 +66,8 @@ public class Document {
     public String getErrorMessage() { return errorMessage; }
     public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
 
-    public int getChunkCount() { return chunkCount; }
-    public void setChunkCount(int chunkCount) { this.chunkCount = chunkCount; }
+    public int getTotalChunks() { return totalChunks; }
+    public void setTotalChunks(int totalChunks) { this.totalChunks = totalChunks; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

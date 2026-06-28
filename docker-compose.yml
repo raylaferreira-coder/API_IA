@@ -45,6 +45,49 @@ services:
     networks:
       - marvel-net
 
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: postgres-marvel
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=chatdb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - marvel-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: ./chat-backend
+      dockerfile: Dockerfile
+    container_name: chat-api-marvel
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=rag
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/chatdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - RAG_WEBHOOK_URL=http://n8n:5678/webhook/rag
+    depends_on:
+      ollama:
+        condition: service_healthy
+      postgres:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - marvel-net
+
 networks:
   marvel-net:
     driver: bridge
@@ -53,4 +96,6 @@ volumes:
   ollama_data:
     driver: local
   n8n_data:
+    driver: local
+  postgres_data:
     driver: local
