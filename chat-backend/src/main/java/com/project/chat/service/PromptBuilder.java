@@ -23,6 +23,13 @@ public class PromptBuilder {
         return marvelPromptBuilder.buildPromptWithContext(question, chunksContext);
     }
 
+    public String buildWithRawContext(String question, String rawContext) {
+        if (rawContext == null || rawContext.isBlank()) {
+            return marvelPromptBuilder.buildSimplePrompt(question);
+        }
+        return marvelPromptBuilder.buildPromptWithContext(question, rawContext);
+    }
+
     public String buildChunkContext(List<DocumentChunk> chunks) {
         if (chunks == null || chunks.isEmpty()) {
             return "";

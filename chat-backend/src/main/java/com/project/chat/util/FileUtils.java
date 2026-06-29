@@ -9,7 +9,16 @@ public class FileUtils {
 
     private static final Logger log = LoggerFactory.getLogger(FileUtils.class);
 
-    public static final Set<String> ALLOWED_MIME_TYPES = Set.of("text/plain", "application/pdf");
+    public static final Set<String> ALLOWED_MIME_TYPES = Set.of(
+            "text/plain",
+            "application/pdf",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "image/jpeg",
+            "image/png",
+            "image/bmp",
+            "image/tiff",
+            "image/gif"
+    );
     public static final long MAX_FILE_SIZE = 10L * 1024 * 1024;
 
     public static String getExtension(String fileName) {

@@ -103,7 +103,7 @@ class UploadServiceTest {
     void uploadFile_WithUnsupportedType_ShouldThrowUnsupportedFileTypeException() {
         mockValidSession();
         MultipartFile file = new MockMultipartFile(
-                "file", "image.png", "image/png", "fake".getBytes());
+                "file", "image.webp", "image/webp", "fake".getBytes());
 
         assertThrows(UnsupportedFileTypeException.class,
                 () -> uploadService.uploadFile(file, VALID_SESSION));

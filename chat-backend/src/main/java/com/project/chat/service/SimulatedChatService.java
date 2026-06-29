@@ -1,6 +1,7 @@
 package com.project.chat.service;
 
 import com.project.chat.dto.request.ChatRequest;
+import com.project.chat.dto.request.UploadAndAskRequest;
 import com.project.chat.dto.response.ChatResponse;
 import com.project.chat.dto.response.ConversationResponse;
 import com.project.chat.dto.response.HistoryResponse;
@@ -109,6 +110,49 @@ public class SimulatedChatService implements ChatService {
         MessageResponse assistantMsgResponse = messageMapper.toResponse(assistantMessage);
 
         return new ChatResponse(userMsgResponse, assistantMsgResponse, conversation.getId());
+    }
+
+    @Override
+    @Transactional
+    public ChatResponse uploadAndAsk(UploadAndAskRequest request) {
+        Session session = sessionRepository.findBySessionId(request.getSessionId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Sessão não encontrada: " + request.getSessionId()));
+
+        session.setLastActivity(LocalDateTime.now());
+        sessionRepository.save(session);
+
+        Conversation conversation;
+        if (request.getConversationId() != null) {
+            conversation = conversationRepository.findById(request.getConversationId())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Conversa não encontrada: " + request.getConversationId()));
+        } else {
+            conversation = new Conversation(session, "Arquivo: " + request.getOriginalFileName());
+            conversation = conversationRepository.save(conversation);
+        }
+        conversation.setUpdatedAt(LocalDateTime.now());
+        conversationRepository.save(conversation);
+
+        String question = request.getContent() != null && !request.getContent().trim().isEmpty()
+                ? request.getContent()
+                : "Analise o arquivo: " + request.getOriginalFileName();
+
+        Message userMessage = new Message(conversation, MessageRole.USER,
+                question + "\n\n[Arquivo: " + request.getOriginalFileName() + "]");
+        userMessage = messageRepository.save(userMessage);
+
+        String simulatedResponse = "Recebi o arquivo \"" + request.getOriginalFileName()
+                + "\". No momento estou em modo de simulacao, "
+                + "mas em breve poderei processar arquivos com inteligencia artificial.";
+
+        Message assistantMessage = new Message(conversation, MessageRole.ASSISTANT, simulatedResponse);
+        assistantMessage = messageRepository.save(assistantMessage);
+
+        return new ChatResponse(
+                messageMapper.toResponse(userMessage),
+                messageMapper.toResponse(assistantMessage),
+                conversation.getId());
     }
 
     @Override

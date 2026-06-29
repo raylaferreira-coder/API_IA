@@ -33,6 +33,7 @@ rag:
     url: http://localhost:11434
     model: gemma4
     embedding-model: nomic-embed-text
+    vision-model: llava
     connect-timeout: 5s
     read-timeout: 120s
     temperature: 0.7

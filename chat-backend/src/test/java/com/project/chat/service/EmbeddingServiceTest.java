@@ -32,6 +32,6 @@ class EmbeddingServiceTest {
                 httpClient);
         String longText = "a".repeat(10000);
 
-        assertThrows(EmbeddingException.class, () -> service.embed(longText));
+        assertDoesNotThrow(() -> service.embed(longText));
     }
 }

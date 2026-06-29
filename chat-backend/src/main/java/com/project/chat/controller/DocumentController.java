@@ -65,7 +65,8 @@ public class DocumentController {
     private static final long MAX_INGESTION_FILE_SIZE = 50L * 1024 * 1024;
 
     private static final Set<String> SUPPORTED_INGESTION_TYPES = Set.of(
-            "txt", "pdf", "markdown", "md", "html", "htm");
+            "txt", "pdf", "markdown", "md", "html", "htm", "docx",
+            "jpg", "jpeg", "png", "bmp", "tiff", "tif", "gif");
 
     @PostMapping("/ingest")
     public ResponseEntity<IngestionResponse> ingestFile(
@@ -87,7 +88,7 @@ public class DocumentController {
 
         if (!SUPPORTED_INGESTION_TYPES.contains(detectedType.toLowerCase())) {
             throw new UnsupportedFileTypeException(
-                    "Formato de arquivo não suportado para indexação. Utilize .pdf, .txt, .md ou .html.");
+                    "Formato de arquivo não suportado para indexação. Utilize .pdf, .txt, .md, .html, .docx ou imagens.");
         }
 
         try {
@@ -125,6 +126,12 @@ public class DocumentController {
         if (lower.endsWith(".pdf")) return "pdf";
         if (lower.endsWith(".md") || lower.endsWith(".markdown")) return "markdown";
         if (lower.endsWith(".html") || lower.endsWith(".htm")) return "html";
+        if (lower.endsWith(".docx")) return "docx";
+        if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "jpg";
+        if (lower.endsWith(".png")) return "png";
+        if (lower.endsWith(".bmp")) return "bmp";
+        if (lower.endsWith(".tiff") || lower.endsWith(".tif")) return "tiff";
+        if (lower.endsWith(".gif")) return "gif";
         return "txt";
     }
 }

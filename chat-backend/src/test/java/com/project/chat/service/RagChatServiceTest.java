@@ -8,8 +8,11 @@ import com.project.chat.exception.ResourceNotFoundException;
 import com.project.chat.exception.ValidationException;
 import com.project.chat.mapper.MessageMapper;
 import com.project.chat.repository.ConversationRepository;
+import com.project.chat.repository.DocumentChunkRepository;
+import com.project.chat.repository.DocumentRepository;
 import com.project.chat.repository.MessageRepository;
 import com.project.chat.repository.SessionRepository;
+import com.project.chat.service.parser.ParserFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,6 +49,18 @@ class RagChatServiceTest {
     private OllamaChatService ollamaChatService;
     @Mock
     private com.project.chat.repository.AttachmentRepository attachmentRepository;
+    @Mock
+    private OllamaVisionService ollamaVisionService;
+    @Mock
+    private ParserFactory parserFactory;
+    @Mock
+    private DocumentRepository documentRepository;
+    @Mock
+    private DocumentChunkRepository documentChunkRepository;
+    @Mock
+    private ChunkService chunkService;
+    @Mock
+    private WebhookService webhookService;
 
     private RagChatService ragChatService;
 
@@ -56,7 +71,10 @@ class RagChatServiceTest {
                 messageRepository, messageMapper,
                 conversationService, embeddingService,
                 retrievalService, promptBuilder,
-                ollamaChatService, attachmentRepository, 5);
+                ollamaChatService, attachmentRepository, 5,
+                ollamaVisionService, parserFactory,
+                documentRepository, documentChunkRepository,
+                chunkService, webhookService);
     }
 
     @Test
