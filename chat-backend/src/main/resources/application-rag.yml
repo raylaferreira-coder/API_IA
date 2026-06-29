@@ -11,6 +11,7 @@ spring:
       maximum-pool-size: 10
       minimum-idle: 2
       connection-timeout: 30000
+      initialization-fail-timeout: 30000
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -24,15 +25,15 @@ rag:
   topK: ${RAG_TOP_K:5}
   ollama:
     url: ${RAG_OLLAMA_URL:http://localhost:11434}
-    model: ${OLLAMA_MODEL:gemma4}
+    model: ${OLLAMA_MODEL:gemma3:4b}
     embedding-model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
-    connect-timeout: ${OLLAMA_CONNECT_TIMEOUT:5s}
-    read-timeout: ${OLLAMA_READ_TIMEOUT:30s}
+    connect-timeout: ${OLLAMA_CONNECT_TIMEOUT:10s}
+    read-timeout: ${OLLAMA_READ_TIMEOUT:120s}
     temperature: ${OLLAMA_TEMPERATURE:0.7}
-    max-tokens: ${OLLAMA_MAX_TOKENS:2048}
+    max-tokens: ${OLLAMA_MAX_TOKENS:4096}
   chunking:
-    size: ${CHUNK_SIZE:800}
-    overlap: ${CHUNK_OVERLAP:120}
+    size: ${CHUNK_SIZE:1000}
+    overlap: ${CHUNK_OVERLAP:150}
   webhook:
     url: ${N8N_WEBHOOK_URL:http://localhost:5678/webhook/ingestion-complete}
     enabled: ${N8N_WEBHOOK_ENABLED:true}
@@ -43,7 +44,9 @@ ai:
   agent:
     enabled: true
     base-url: ${RAG_OLLAMA_URL:http://localhost:11434}
-    model: ${OLLAMA_MODEL:gemma4}
+    model: ${OLLAMA_MODEL:gemma3:4b}
+    read-timeout: 120000
+    connect-timeout: 10000
     temperature: ${AI_AGENT_TEMPERATURE:0.7}
     max-tokens: ${AI_AGENT_MAX_TOKENS:2048}
 

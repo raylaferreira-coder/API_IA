@@ -1,10 +1,10 @@
 {
-  "name": "Notificação de Ingestão de Documentos",
+  "name": "Pipeline de Ingestao Marvel",
   "nodes": [
     {
       "parameters": {
         "httpMethod": "POST",
-        "path": "ingestion-webhook",
+        "path": "ingestion-complete",
         "options": {}
       },
       "id": "webhook-trigger",
@@ -64,55 +64,19 @@
   ],
   "connections": {
     "Webhook": {
-      "main": [
-        [
-          {
-            "node": "Status Check",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{"node": "Status Check", "type": "main", "index": 0}]]
     },
     "Status Check": {
       "main": [
-        [
-          {
-            "node": "Success Log",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Failure Log",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        [{"node": "Success Log", "type": "main", "index": 0}],
+        [{"node": "Failure Log", "type": "main", "index": 0}]
       ]
     },
     "Success Log": {
-      "main": [
-        [
-          {
-            "node": "Respond",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{"node": "Respond", "type": "main", "index": 0}]]
     },
     "Failure Log": {
-      "main": [
-        [
-          {
-            "node": "Respond",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{"node": "Respond", "type": "main", "index": 0}]]
     }
   }
 }

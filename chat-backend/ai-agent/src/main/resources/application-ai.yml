@@ -2,12 +2,12 @@ ai:
   agent:
     enabled: true
     base-url: http://localhost:11434
-    model: gemma4
+    model: gemma3:4b
     embedding-model: nomic-embed-text
     temperature: 0.7
     max-tokens: 2048
     connect-timeout: 5000
-    read-timeout: 30000
+    read-timeout: 120000
     system-prompt: >
       Voce e um especialista absoluto no Universo Cinematografico Marvel (MCU).
       Responda apenas sobre o MCU. Se a pergunta nao for sobre Marvel,

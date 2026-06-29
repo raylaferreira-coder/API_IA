@@ -48,6 +48,8 @@ class SimulatedChatServiceTest {
     private ConversationService conversationService;
     @Mock
     private com.project.chat.repository.AttachmentRepository attachmentRepository;
+    @Mock
+    private TaskService taskService;
 
     private SimulatedChatService chatService;
 
@@ -56,7 +58,7 @@ class SimulatedChatServiceTest {
         chatService = new SimulatedChatService(
                 sessionRepository, conversationRepository,
                 messageRepository, messageMapper, conversationService,
-                attachmentRepository);
+                attachmentRepository, taskService);
     }
 
     @Test

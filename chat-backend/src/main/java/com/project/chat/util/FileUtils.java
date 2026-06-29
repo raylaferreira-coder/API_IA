@@ -12,6 +12,7 @@ public class FileUtils {
     public static final Set<String> ALLOWED_MIME_TYPES = Set.of(
             "text/plain",
             "application/pdf",
+            "application/msword",
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             "image/jpeg",
             "image/png",
@@ -19,7 +20,7 @@ public class FileUtils {
             "image/tiff",
             "image/gif"
     );
-    public static final long MAX_FILE_SIZE = 10L * 1024 * 1024;
+    public static final long MAX_FILE_SIZE = 50L * 1024 * 1024;
 
     public static String getExtension(String fileName) {
         if (fileName == null || !fileName.contains(".")) {

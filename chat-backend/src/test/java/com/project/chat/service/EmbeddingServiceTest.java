@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.net.http.HttpClient;
+import java.time.Duration;
 
 import org.junit.jupiter.api.Test;
 
@@ -15,13 +16,13 @@ class EmbeddingServiceTest {
 
     @Test
     void constructor_ShouldLogStartupMessage() {
-        assertDoesNotThrow(() -> new OllamaEmbeddingService("http://localhost:11434", "nomic-embed-text", httpClient));
+        assertDoesNotThrow(() -> new OllamaEmbeddingService("http://localhost:11434", "nomic-embed-text", Duration.ofSeconds(120), httpClient));
     }
 
     @Test
     void embed_WhenOllamaUnavailable_ShouldThrowEmbeddingException() {
         OllamaEmbeddingService service = new OllamaEmbeddingService("http://localhost:99999", "nomic-embed-text",
-                httpClient);
+                Duration.ofSeconds(120), httpClient);
 
         assertThrows(EmbeddingException.class, () -> service.embed("teste"));
     }
@@ -29,7 +30,7 @@ class EmbeddingServiceTest {
     @Test
     void embed_WithLongText_ShouldTruncateTo8000Chars() {
         OllamaEmbeddingService service = new OllamaEmbeddingService("http://localhost:11434", "nomic-embed-text",
-                httpClient);
+                Duration.ofSeconds(120), httpClient);
         String longText = "a".repeat(10000);
 
         assertDoesNotThrow(() -> service.embed(longText));

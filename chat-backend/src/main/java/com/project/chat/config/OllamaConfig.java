@@ -13,10 +13,16 @@ public class OllamaConfig {
     @Value("${rag.ollama.url:http://localhost:11434}")
     private String baseUrl;
 
+    @Value("${rag.ollama.connect-timeout:10s}")
+    private Duration connectTimeout;
+
+    @Value("${rag.ollama.read-timeout:120s}")
+    private Duration readTimeout;
+
     @Bean
     public HttpClient ollamaHttpClient() {
         return HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(30))
+                .connectTimeout(connectTimeout)
                 .build();
     }
 

@@ -1,5 +1,6 @@
 package com.project.chat.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.chat.dto.request.ChatRequest;
 import com.project.chat.dto.request.UploadAndAskRequest;
 import com.project.chat.dto.response.ChatResponse;
@@ -20,8 +21,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Service
 @Profile("dev")
@@ -35,19 +38,24 @@ public class SimulatedChatService implements ChatService {
     private final MessageMapper messageMapper;
     private final ConversationService conversationService;
     private final AttachmentRepository attachmentRepository;
+    private final TaskService taskService;
+    private final ObjectMapper objectMapper;
 
     public SimulatedChatService(SessionRepository sessionRepository,
                                 ConversationRepository conversationRepository,
                                 MessageRepository messageRepository,
                                 MessageMapper messageMapper,
                                 ConversationService conversationService,
-                                AttachmentRepository attachmentRepository) {
+                                AttachmentRepository attachmentRepository,
+                                TaskService taskService) {
         this.sessionRepository = sessionRepository;
         this.conversationRepository = conversationRepository;
         this.messageRepository = messageRepository;
         this.messageMapper = messageMapper;
         this.conversationService = conversationService;
         this.attachmentRepository = attachmentRepository;
+        this.taskService = taskService;
+        this.objectMapper = new ObjectMapper();
     }
 
     @Override
@@ -174,6 +182,45 @@ public class SimulatedChatService implements ChatService {
     @Transactional(readOnly = true)
     public ConversationResponse getConversation(String sessionId, Long conversationId) {
         return conversationService.getConversation(sessionId, conversationId);
+    }
+
+    @Override
+    public String sendMessageAsync(ChatRequest request) {
+        String taskId = taskService.createTask();
+        taskService.startProcessing(taskId);
+        try {
+            ChatResponse result = sendMessage(request);
+            taskService.complete(taskId, result);
+        } catch (Exception e) {
+            taskService.fail(taskId, e.getMessage());
+        }
+        return taskId;
+    }
+
+    @Override
+    public TaskService.TaskEntry getTaskStatus(String taskId) {
+        return taskService.getTask(taskId);
+    }
+
+    @Override
+    public SseEmitter sendMessageStream(ChatRequest request) {
+        SseEmitter emitter = new SseEmitter(300000L);
+        try {
+            ChatResponse response = sendMessage(request);
+            Map<String, Object> doneEvent = Map.of(
+                    "type", "done",
+                    "userMessage", response.getUserMessage(),
+                    "assistantMessage", response.getAssistantMessage(),
+                    "conversationId", response.getConversationId()
+            );
+            emitter.send(SseEmitter.event()
+                    .name("done")
+                    .data(objectMapper.writeValueAsString(doneEvent)));
+            emitter.complete();
+        } catch (Exception e) {
+            emitter.completeWithError(e);
+        }
+        return emitter;
     }
 
     private String generateSimulatedResponse(String userContent) {

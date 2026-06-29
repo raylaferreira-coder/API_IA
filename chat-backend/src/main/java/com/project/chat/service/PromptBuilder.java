@@ -27,7 +27,7 @@ public class PromptBuilder {
         if (rawContext == null || rawContext.isBlank()) {
             return marvelPromptBuilder.buildSimplePrompt(question);
         }
-        return marvelPromptBuilder.buildPromptWithContext(question, rawContext);
+        return marvelPromptBuilder.buildFromRawContext(question, rawContext);
     }
 
     public String buildChunkContext(List<DocumentChunk> chunks) {

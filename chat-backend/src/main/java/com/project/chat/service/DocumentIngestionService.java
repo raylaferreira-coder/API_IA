@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,7 +50,6 @@ public class DocumentIngestionService {
         this.webhookService = webhookService;
     }
 
-    @Transactional
     public Document ingestFromUrl(String url) {
         long startTime = System.currentTimeMillis();
         try {
@@ -85,7 +85,6 @@ public class DocumentIngestionService {
         }
     }
 
-    @Transactional
     public Document ingestFromFile(String filePath, String sourceType, String title) {
         long startTime = System.currentTimeMillis();
         Document document = new Document(
@@ -133,6 +132,8 @@ public class DocumentIngestionService {
 
         List<float[]> embeddings = embeddingService.embedAll(chunks);
 
+        List<DocumentChunk> chunkEntities = new ArrayList<>();
+        int chunksSemEmbedding = 0;
         for (int i = 0; i < chunks.size(); i++) {
             DocumentChunk chunk = new DocumentChunk(
                     document,
@@ -142,9 +143,15 @@ public class DocumentIngestionService {
             );
             if (i < embeddings.size()) {
                 chunk.setEmbedding(embeddings.get(i));
+            } else {
+                chunksSemEmbedding++;
             }
-            documentChunkRepository.save(chunk);
+            chunkEntities.add(chunk);
         }
+        if (chunksSemEmbedding > 0) {
+            log.warn("{} chunks salvos sem embedding para o documento {}", chunksSemEmbedding, document.getId());
+        }
+        documentChunkRepository.saveAll(chunkEntities);
 
         document.setTotalChunks(chunks.size());
     }

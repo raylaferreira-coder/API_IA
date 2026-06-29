@@ -3,12 +3,12 @@ package com.project.chat.ai.config;
 public class AiAgentProperties {
 
     private String baseUrl = "http://localhost:11434";
-    private String model = "llama3.2";
+    private String model = "gemma3:4b";
     private String embeddingModel = "nomic-embed-text";
     private double temperature = 0.7;
     private int maxTokens = 2048;
     private int connectTimeout = 5000;
-    private int readTimeout = 30000;
+    private int readTimeout = 120000;
     private String systemPrompt = "";
     private String marvelKnowledge = "";
     private boolean enabled = true;

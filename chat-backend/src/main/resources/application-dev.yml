@@ -19,14 +19,14 @@ spring:
 ai:
   agent:
     enabled: true
-    model: gemma4
+    model: llama3.2:3b
     base-url: http://localhost:11434
     temperature: 0.7
 
 rag:
   ollama:
     url: http://localhost:11434
-    model: gemma4
+    model: llama3.2:3b
     embedding-model: nomic-embed-text
     temperature: 0.7
     max-tokens: 2048

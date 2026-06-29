@@ -1,20 +1,18 @@
-version: '3.8'
-
 services:
   postgres:
     image: pgvector/pgvector:pg16
-    container_name: postgres-pgvector
+    container_name: postgres-marvel
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_DB: chatdb
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
+      interval: 10s
       timeout: 5s
       retries: 5
     restart: unless-stopped
@@ -28,68 +26,92 @@ services:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
+    environment:
+      OLLAMA_KEEP_ALIVE: "24h"
     entrypoint: >
       sh -c "
+      set -e
       echo 'Iniciando Ollama server...' &&
       ollama serve &
       sleep 5 &&
-      echo 'Baixando modelo LLM...' &&
-      ollama pull llama3.2 &&
+      echo 'Baixando modelo Gemma 3 4B...' &&
+      ollama pull gemma3:4b &&
       echo 'Baixando nomic-embed-text...' &&
       ollama pull nomic-embed-text &&
-      echo 'Modelos prontos! llama3.2 + nomic-embed-text disponiveis' &&
+      echo 'Pre-aquecendo modelo LLM...' &&
+      ollama run gemma3:4b '' 2>/dev/null || true &&
+      echo 'Modelos prontos! gemma3:4b + nomic-embed-text disponiveis' &&
       wait
       "
     healthcheck:
-      test: ["CMD", "ollama", "list"]
-      interval: 15s
-      timeout: 10s
-      retries: 10
-      start_period: 60s
+      test: ["CMD", "sh", "-c", "ollama list | grep -q gemma3"]
+      interval: 30s
+      timeout: 30s
+      retries: 60
+      start_period: 600s
     restart: unless-stopped
     networks:
       - marvel-net
 
   n8n:
     image: n8nio/n8n:latest
-    container_name: n8n-workflow
+    container_name: n8n-marvel
     ports:
       - "5678:5678"
     environment:
       N8N_HOST: localhost
       N8N_PORT: 5678
       N8N_PROTOCOL: http
-      WEBHOOK_URL: http://localhost:5678/
     volumes:
       - n8n_data:/home/node/.n8n
     restart: unless-stopped
     networks:
       - marvel-net
 
-  app:
+  backend:
     build: .
     container_name: chat-backend
     ports:
       - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: rag
-      DATABASE_URL: jdbc:postgresql://postgres:5432/chatdb
-      DATABASE_USERNAME: postgres
-      DATABASE_PASSWORD: postgres
-      OLLAMA_URL: http://ollama:11434
-      OLLAMA_MODEL: llama3.2
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/chatdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      RAG_OLLAMA_URL: http://ollama:11434
+      OLLAMA_MODEL: gemma3:4b
       OLLAMA_EMBEDDING_MODEL: nomic-embed-text
+      OLLAMA_READ_TIMEOUT: 600s
+      OLLAMA_CONNECT_TIMEOUT: 30s
       N8N_WEBHOOK_URL: http://n8n:5678/webhook/ingestion-complete
-      CHUNK_SIZE: 800
-      CHUNK_OVERLAP: 120
+      CHUNK_SIZE: 1000
+      CHUNK_OVERLAP: 150
       AI_AGENT_ENABLED: "true"
       AI_AGENT_TEMPERATURE: 0.7
-      AI_AGENT_MAX_TOKENS: 2048
+      AI_AGENT_MAX_TOKENS: 4096
+      MARVEL_API_PUBLIC_KEY: ""
+      MARVEL_API_PRIVATE_KEY: ""
     depends_on:
       postgres:
         condition: service_healthy
       ollama:
         condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - marvel-net
+
+  frontend:
+    build:
+      context: ../../Trabalho-Inteligencia-Artificial-GenIA---Front-end-Grupo-5/chat-frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ""
+    container_name: chat-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      backend:
+        condition: service_started
     restart: unless-stopped
     networks:
       - marvel-net

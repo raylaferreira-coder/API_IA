@@ -19,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
@@ -61,6 +62,8 @@ class RagChatServiceTest {
     private ChunkService chunkService;
     @Mock
     private WebhookService webhookService;
+    @Mock
+    private TaskService taskService;
 
     private RagChatService ragChatService;
 
@@ -74,7 +77,8 @@ class RagChatServiceTest {
                 ollamaChatService, attachmentRepository, 5,
                 ollamaVisionService, parserFactory,
                 documentRepository, documentChunkRepository,
-                chunkService, webhookService);
+                chunkService, webhookService, taskService,
+                Duration.ofSeconds(120));
     }
 
     @Test

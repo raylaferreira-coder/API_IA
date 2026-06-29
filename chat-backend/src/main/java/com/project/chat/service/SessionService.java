@@ -23,7 +23,7 @@ public class SessionService {
     private final int expirationHours;
 
     public SessionService(SessionRepository sessionRepository,
-                          @Value("${session.expiration-hours:24}") int expirationHours) {
+                          @Value("${chat.session.expiration-hours:24}") int expirationHours) {
         this.sessionRepository = sessionRepository;
         this.expirationHours = expirationHours;
     }

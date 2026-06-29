@@ -16,6 +16,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.sql.Connection;
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 @RestController
@@ -29,6 +30,9 @@ public class HealthController {
 
     @Value("${rag.ollama.url:http://localhost:11434}")
     private String ollamaBaseUrl;
+
+    @Value("${rag.ollama.health-timeout:30s}")
+    private Duration ollamaHealthTimeout;
 
     @Value("${chat.version:1.0.0}")
     private String version;
@@ -54,7 +58,7 @@ public class HealthController {
             String normalizedUrl = ollamaBaseUrl.replaceAll("/+$", "") + "/api/tags";
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(normalizedUrl))
-                    .timeout(java.time.Duration.ofSeconds(3))
+                    .timeout(ollamaHealthTimeout)
                     .GET()
                     .build();
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -79,6 +83,29 @@ public class HealthController {
                 dbStatus,
                 ollamaStatus,
                 diskInfo,
+                LocalDateTime.now(),
+                version
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/health/liveness")
+    public ResponseEntity<HealthResponse> liveness() {
+        String dbStatus = "UP";
+        try (Connection conn = dataSource.getConnection()) {
+            if (!conn.isValid(2)) {
+                dbStatus = "DOWN";
+            }
+        } catch (Exception e) {
+            dbStatus = "DOWN";
+        }
+
+        HealthResponse response = new HealthResponse(
+                dbStatus,
+                dbStatus,
+                "SKIPPED",
+                "N/A",
                 LocalDateTime.now(),
                 version
         );
