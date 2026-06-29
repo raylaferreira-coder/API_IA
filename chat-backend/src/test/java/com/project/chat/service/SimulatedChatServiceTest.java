@@ -1,5 +1,23 @@
 package com.project.chat.service;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.project.chat.dto.request.ChatRequest;
 import com.project.chat.dto.response.ChatResponse;
 import com.project.chat.dto.response.ConversationResponse;
@@ -14,17 +32,6 @@ import com.project.chat.mapper.MessageMapper;
 import com.project.chat.repository.ConversationRepository;
 import com.project.chat.repository.MessageRepository;
 import com.project.chat.repository.SessionRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class SimulatedChatServiceTest {
@@ -39,6 +46,8 @@ class SimulatedChatServiceTest {
     private MessageMapper messageMapper;
     @Mock
     private ConversationService conversationService;
+    @Mock
+    private com.project.chat.repository.AttachmentRepository attachmentRepository;
 
     private SimulatedChatService chatService;
 
@@ -46,7 +55,8 @@ class SimulatedChatServiceTest {
     void setUp() {
         chatService = new SimulatedChatService(
                 sessionRepository, conversationRepository,
-                messageRepository, messageMapper, conversationService);
+                messageRepository, messageMapper, conversationService,
+                attachmentRepository);
     }
 
     @Test

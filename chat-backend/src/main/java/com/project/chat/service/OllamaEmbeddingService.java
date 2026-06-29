@@ -58,6 +58,7 @@ public class OllamaEmbeddingService implements EmbeddingService {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(normalizedUrl))
                     .header("Content-Type", "application/json")
+                    .timeout(java.time.Duration.ofSeconds(30))
                     .POST(HttpRequest.BodyPublishers.ofString(json))
                     .build();
 
@@ -69,15 +70,16 @@ public class OllamaEmbeddingService implements EmbeddingService {
 
             @SuppressWarnings("unchecked")
             Map<String, Object> responseMap = objectMapper.readValue(response.body(), Map.class);
-            if (responseMap == null || !responseMap.containsKey("embedding")) {
-                throw new EmbeddingException("Resposta do Ollama não contém embedding.");
+            if (responseMap == null || !responseMap.containsKey("embeddings")) {
+                throw new EmbeddingException("Resposta do Ollama não contém embeddings.");
             }
             @SuppressWarnings("unchecked")
-            List<Number> embeddingList = (List<Number>) responseMap.get("embedding");
-            if (embeddingList == null) {
-                throw new EmbeddingException("Lista de embeddings retornada como nula.");
+            List<List<Number>> embeddingsList = (List<List<Number>>) responseMap.get("embeddings");
+            if (embeddingsList == null || embeddingsList.isEmpty()) {
+                throw new EmbeddingException("Lista de embeddings retornada como vazia.");
             }
 
+            List<Number> embeddingList = embeddingsList.get(0);
             float[] embedding = new float[embeddingList.size()];
             for (int i = 0; i < embeddingList.size(); i++) {
                 embedding[i] = embeddingList.get(i).floatValue();
