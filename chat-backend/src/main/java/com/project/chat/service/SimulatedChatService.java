@@ -8,6 +8,7 @@ import com.project.chat.dto.response.HistoryResponse;
 import com.project.chat.dto.response.MessageResponse;
 import com.project.chat.entity.*;
 import com.project.chat.exception.ResourceNotFoundException;
+import com.project.chat.exception.SessionConflictException;
 import com.project.chat.exception.ValidationException;
 import com.project.chat.mapper.MessageMapper;
 import com.project.chat.repository.AttachmentRepository;
@@ -62,6 +63,10 @@ public class SimulatedChatService implements ChatService {
         Session session = sessionRepository.findBySessionId(request.getSessionId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Sessão não encontrada: " + request.getSessionId()));
+
+        if (session.isExpired()) {
+            throw new SessionConflictException("Sessão expirada: " + request.getSessionId());
+        }
 
         session.setLastActivity(LocalDateTime.now());
         sessionRepository.save(session);
@@ -118,6 +123,10 @@ public class SimulatedChatService implements ChatService {
         Session session = sessionRepository.findBySessionId(request.getSessionId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Sessão não encontrada: " + request.getSessionId()));
+
+        if (session.isExpired()) {
+            throw new SessionConflictException("Sessão expirada: " + request.getSessionId());
+        }
 
         session.setLastActivity(LocalDateTime.now());
         sessionRepository.save(session);

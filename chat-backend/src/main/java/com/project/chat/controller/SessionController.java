@@ -21,6 +21,12 @@ public class SessionController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/{sessionId}")
+    public ResponseEntity<SessionResponse> getSession(@PathVariable String sessionId) {
+        SessionResponse response = sessionService.getSession(sessionId);
+        return ResponseEntity.ok(response);
+    }
+
     @DeleteMapping("/{sessionId}")
     public ResponseEntity<Void> invalidateSession(@PathVariable String sessionId) {
         sessionService.invalidateSession(sessionId);
