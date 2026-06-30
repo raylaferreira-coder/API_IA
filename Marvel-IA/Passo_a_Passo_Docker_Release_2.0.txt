@@ -1,0 +1,75 @@
+Passo a passo para reconstruir e iniciar o Docker - Release 2.0
+
+1.  Abra o PowerShell.
+
+2.  Vá até a pasta onde está o docker-compose.yml:
+
+Marvel-IA\BACKEND
+
+3.  Pare os containers:
+
+docker compose down
+
+4.  Reconstrua as imagens:
+
+docker compose build –no-cache
+
+5.  Inicie os serviços:
+
+docker compose up -d
+
+6.  Verifique os containers:
+
+docker ps
+
+Containers esperados: - postgres-marvel - ollama-marvel - n8n-marvel -
+chat-backend - chat-frontend
+
+7.  Veja os logs do backend:
+
+docker logs -f chat-backend
+
+Quando aparecer: Started ChatApplication Tomcat started on port(s): 8080
+
+pressione Ctrl+C.
+
+8.  Teste o backend:
+
+curl http://localhost:8080/api/health
+
+curl http://localhost:8080/api/health/liveness
+
+9.  Verifique os modelos do Ollama:
+
+docker exec -it ollama-marvel ollama list
+
+Modelos esperados: - gemma3:4b - nomic-embed-text
+
+10. Abra o frontend:
+
+http://localhost:3000
+
+11. Faça um teste funcional:
+
+-   Criar sessão
+-   Enviar pergunta
+-   Verificar resposta
+-   Testar upload de PDF
+-   Testar upload de imagem
+-   Consultar histórico
+
+12. Se alterar o código novamente:
+
+docker compose down
+
+docker compose build –no-cache
+
+docker compose up -d
+
+13. Se quiser apenas reiniciar:
+
+docker compose restart
+
+14. Para remover containers e volumes (apaga os dados):
+
+docker compose down -v
