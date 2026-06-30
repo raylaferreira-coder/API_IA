@@ -9,7 +9,7 @@ public class MessageResponse {
     private String role;
     private String content;
     private LocalDateTime timestamp;
-    private Object attachment;
+    private AttachmentResponse attachment;
 
     public MessageResponse() {
     }
@@ -18,7 +18,7 @@ public class MessageResponse {
         this(id, conversationId, role, content, timestamp, null);
     }
 
-    public MessageResponse(Long id, Long conversationId, String role, String content, LocalDateTime timestamp, Object attachment) {
+    public MessageResponse(Long id, Long conversationId, String role, String content, LocalDateTime timestamp, AttachmentResponse attachment) {
         this.id = id;
         this.conversationId = conversationId;
         this.role = role;
@@ -67,11 +67,11 @@ public class MessageResponse {
         this.timestamp = timestamp;
     }
 
-    public Object getAttachment() {
+    public AttachmentResponse getAttachment() {
         return attachment;
     }
 
-    public void setAttachment(Object attachment) {
+    public void setAttachment(AttachmentResponse attachment) {
         this.attachment = attachment;
     }
 }

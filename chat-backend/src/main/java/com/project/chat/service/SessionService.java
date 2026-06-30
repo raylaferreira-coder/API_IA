@@ -6,7 +6,10 @@ import com.project.chat.exception.ResourceNotFoundException;
 import com.project.chat.repository.SessionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -17,12 +20,16 @@ public class SessionService {
     private static final Logger log = LoggerFactory.getLogger(SessionService.class);
 
     private final SessionRepository sessionRepository;
+    private final int expirationHours;
 
-    public SessionService(SessionRepository sessionRepository) {
+    public SessionService(SessionRepository sessionRepository,
+                          @Value("${chat.session.expiration-hours:24}") int expirationHours) {
         this.sessionRepository = sessionRepository;
+        this.expirationHours = expirationHours;
     }
 
-    public SessionResponse createOrGetSession() {
+    @Transactional
+    public SessionResponse createSession() {
         String sessionId = UUID.randomUUID().toString();
         Session session = new Session(sessionId);
         session = sessionRepository.save(session);
@@ -30,6 +37,7 @@ public class SessionService {
         return toResponse(session);
     }
 
+    @Transactional(readOnly = true)
     public SessionResponse getSession(String sessionId) {
         Session session = sessionRepository.findBySessionId(sessionId)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -37,6 +45,7 @@ public class SessionService {
         return toResponse(session);
     }
 
+    @Transactional
     public void invalidateSession(String sessionId) {
         Session session = sessionRepository.findBySessionId(sessionId)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -46,7 +55,9 @@ public class SessionService {
         log.info("Sessão invalidada: sessionId={}", sessionId);
     }
 
-    public void expireOldSessions(int expirationHours) {
+    @Scheduled(fixedRate = 3600000)
+    @Transactional
+    public void expireOldSessions() {
         LocalDateTime threshold = LocalDateTime.now().minusHours(expirationHours);
         var oldSessions = sessionRepository.findByExpiredFalseAndLastActivityBefore(threshold);
         for (Session s : oldSessions) {

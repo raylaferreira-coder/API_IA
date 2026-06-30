@@ -85,4 +85,11 @@ public class Message {
     public void setAttachment(Attachment attachment) {
         this.attachment = attachment;
     }
+
+    @PrePersist
+    protected void onCreate() {
+        if (timestamp == null) {
+            timestamp = LocalDateTime.now();
+        }
+    }
 }

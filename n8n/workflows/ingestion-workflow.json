@@ -1,0 +1,82 @@
+{
+  "name": "Pipeline de Ingestao Marvel",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ingestion-complete",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.status }}",
+              "operation": "equal",
+              "value2": "COMPLETED"
+            }
+          ]
+        }
+      },
+      "id": "status-check",
+      "name": "Status Check",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const payload = $input.first().json;\n\nconst log = {\n  timestamp: new Date().toISOString(),\n  event: 'document_ingested',\n  documentId: payload.documentId,\n  fileName: payload.fileName,\n  status: payload.status,\n  chunks: payload.chunks,\n  processingTime: payload.processingTime\n};\n\nconsole.log('[Ingestion]', JSON.stringify(log));\n\nreturn { log, message: 'Documento processado com sucesso' };"
+      },
+      "id": "success-handler",
+      "name": "Success Log",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "const payload = $input.first().json;\n\nconst log = {\n  timestamp: new Date().toISOString(),\n  event: 'document_failed',\n  documentId: payload.documentId,\n  fileName: payload.fileName,\n  status: payload.status,\n  error: payload.error\n};\n\nconsole.log('[Ingestion:FAIL]', JSON.stringify(log));\n\nreturn { log, alert: 'Falha na ingestão de documento' };"
+      },
+      "id": "failure-handler",
+      "name": "Failure Log",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "return { success: true };"
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [850, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{"node": "Status Check", "type": "main", "index": 0}]]
+    },
+    "Status Check": {
+      "main": [
+        [{"node": "Success Log", "type": "main", "index": 0}],
+        [{"node": "Failure Log", "type": "main", "index": 0}]
+      ]
+    },
+    "Success Log": {
+      "main": [[{"node": "Respond", "type": "main", "index": 0}]]
+    },
+    "Failure Log": {
+      "main": [[{"node": "Respond", "type": "main", "index": 0}]]
+    }
+  }
+}

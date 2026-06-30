@@ -21,10 +21,6 @@ public class UploadController {
             @RequestParam("file") MultipartFile file,
             @RequestParam("sessionId") String sessionId) {
 
-        if (file.isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-
         UploadResponse response = uploadService.uploadFile(file, sessionId);
         return ResponseEntity.ok(response);
     }

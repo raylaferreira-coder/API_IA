@@ -1,11 +1,14 @@
 package com.project.chat.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public class ChatRequest {
 
     @NotBlank(message = "O identificador de sessão é obrigatório.")
+    @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+             message = "O identificador de sessão fornecido é inválido.")
     private String sessionId;
 
     private Long conversationId;

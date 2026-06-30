@@ -1,8 +1,17 @@
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\test\java\com\project\chat\ChatApplicationTests.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\test\java\com\project\chat\controller\ChatControllerTest.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\test\java\com\project\chat\controller\HealthControllerTest.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\test\java\com\project\chat\controller\UploadControllerTest.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\test\java\com\project\chat\repository\ConversationRepositoryTest.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\test\java\com\project\chat\repository\MessageRepositoryTest.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\test\java\com\project\chat\service\SimulatedChatServiceTest.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\test\java\com\project\chat\service\UploadServiceTest.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\test\java\com\project\chat\ChatApplicationTests.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\test\java\com\project\chat\controller\ChatControllerTest.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\test\java\com\project\chat\controller\DocumentControllerTest.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\test\java\com\project\chat\controller\HealthControllerTest.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\test\java\com\project\chat\controller\UploadControllerTest.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\test\java\com\project\chat\repository\ConversationRepositoryTest.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\test\java\com\project\chat\repository\DocumentChunkRepositoryTest.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\test\java\com\project\chat\repository\MessageRepositoryTest.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\test\java\com\project\chat\service\DocumentIngestionServiceTest.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\test\java\com\project\chat\service\EmbeddingServiceTest.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\test\java\com\project\chat\service\parser\ParserFactoryTest.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\test\java\com\project\chat\service\parser\PdfParserTest.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\test\java\com\project\chat\service\parser\TxtParserTest.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\test\java\com\project\chat\service\RagChatServiceTest.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\test\java\com\project\chat\service\RetrievalServiceTest.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\test\java\com\project\chat\service\SimulatedChatServiceTest.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\test\java\com\project\chat\service\UploadServiceTest.java

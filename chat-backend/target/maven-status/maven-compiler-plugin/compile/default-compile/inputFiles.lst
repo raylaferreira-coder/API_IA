@@ -1,45 +1,113 @@
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\ChatApplication.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\config\CorsConfig.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\config\StorageProperties.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\config\WebConfig.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\controller\ChatController.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\controller\HealthController.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\controller\SessionController.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\controller\UploadController.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\dto\request\ChatRequest.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\dto\request\UploadRequest.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\dto\response\ChatResponse.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\dto\response\ConversationResponse.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\dto\response\ConversationSummaryResponse.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\dto\response\ErrorResponse.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\dto\response\HealthResponse.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\dto\response\HistoryResponse.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\dto\response\MessageResponse.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\dto\response\SessionResponse.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\dto\response\UploadResponse.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\entity\Attachment.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\entity\Conversation.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\entity\Message.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\entity\MessageRole.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\entity\Session.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\exception\FileCorruptedException.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\exception\FileTooLargeException.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\exception\GlobalExceptionHandler.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\exception\ResourceNotFoundException.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\exception\UnsupportedFileTypeException.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\exception\ValidationException.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\mapper\AttachmentMapper.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\mapper\ConversationMapper.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\mapper\MessageMapper.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\repository\AttachmentRepository.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\repository\ConversationRepository.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\repository\MessageRepository.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\repository\SessionRepository.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\service\ChatService.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\service\ConversationService.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\service\FileStorageService.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\service\SessionService.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\service\SimulatedChatService.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\service\UploadService.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\util\FileUtils.java
-C:\Users\Gabriel\Desktop\SerraTec\Inteligencia Artificial\Trabalho Parte 1\API_IA\chat-backend\src\main\java\com\project\chat\util\PdfTextExtractor.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\ai-agent\src\main\java\com\project\chat\ai\AiAgent.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\ai-agent\src\main\java\com\project\chat\ai\client\OllamaClient.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\ai-agent\src\main\java\com\project\chat\ai\config\AiAgentAutoConfig.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\ai-agent\src\main\java\com\project\chat\ai\config\AiAgentProperties.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\ai-agent\src\main\java\com\project\chat\ai\dto\EmbeddingRequest.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\ai-agent\src\main\java\com\project\chat\ai\dto\EmbeddingResponse.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\ai-agent\src\main\java\com\project\chat\ai\dto\GenerateRequest.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\ai-agent\src\main\java\com\project\chat\ai\dto\GenerateResponse.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\ai-agent\src\main\java\com\project\chat\ai\MarvelAiAgent.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\ai-agent\src\main\java\com\project\chat\ai\prompt\MarvelPromptBuilder.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\ChatApplication.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\config\ChunkingProperties.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\config\CorsConfig.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\config\DatabaseInitializer.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\config\KnowledgeBootstrap.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\config\OllamaConfig.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\config\RagWebhookProperties.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\config\StorageProperties.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\controller\ChatController.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\controller\DocumentController.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\controller\HealthController.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\controller\MarvelIngestionController.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\controller\SessionController.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\controller\UploadController.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\dto\request\ChatRequest.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\dto\request\IngestUrlRequest.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\dto\request\SearchRequest.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\dto\request\UploadAndAskRequest.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\dto\response\AttachmentResponse.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\dto\response\ChatResponse.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\dto\response\ConversationResponse.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\dto\response\ConversationSummaryResponse.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\dto\response\DocumentChunkResponse.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\dto\response\DocumentResponse.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\dto\response\DocumentsListResponse.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\dto\response\ErrorResponse.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\dto\response\HealthResponse.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\dto\response\HistoryResponse.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\dto\response\IngestionResponse.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\dto\response\MarvelIngestionResponse.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\dto\response\MessageResponse.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\dto\response\SearchResultResponse.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\dto\response\SessionResponse.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\dto\response\TaskStatusResponse.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\dto\response\UploadResponse.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\entity\Attachment.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\entity\Conversation.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\entity\Document.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\entity\DocumentChunk.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\entity\DocumentMetadata.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\entity\DocumentStatus.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\entity\Message.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\entity\MessageRole.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\entity\Session.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\exception\EmbeddingException.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\exception\FileCorruptedException.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\exception\FileTooLargeException.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\exception\GlobalExceptionHandler.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\exception\IngestionException.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\exception\LlmServiceException.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\exception\ResourceNotFoundException.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\exception\SessionConflictException.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\exception\UnsupportedFileTypeException.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\exception\ValidationException.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\exception\WebhookException.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\mapper\AttachmentMapper.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\mapper\ConversationMapper.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\mapper\DocumentMapper.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\mapper\MessageMapper.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\repository\AttachmentRepository.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\repository\ConversationRepository.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\repository\DocumentChunkRepository.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\repository\DocumentMetadataRepository.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\repository\DocumentRepository.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\repository\MessageRepository.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\repository\SessionRepository.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\ChatService.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\ChunkService.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\ConversationService.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\DocumentIngestionService.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\DocumentQueryService.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\EmbeddingService.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\FileStorageService.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\KnowledgeScannerService.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\marvel\MarvelApiConfig.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\marvel\MarvelApiProperties.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\marvel\MarvelApiService.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\marvel\MarvelFandomIngestionService.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\marvel\MarvelWikipediaIngestionService.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\NoopRetrievalService.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\OllamaChatService.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\OllamaEmbeddingService.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\OllamaVisionService.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\parser\DocumentParser.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\parser\HtmlParser.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\parser\ImageOcrParser.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\parser\MarkdownParser.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\parser\ParserFactory.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\parser\PdfParser.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\parser\TxtParser.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\parser\UrlParser.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\parser\WordParser.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\PromptBuilder.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\RagChatService.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\RetrievalService.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\SessionService.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\SimulatedChatService.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\TaskService.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\UploadService.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\VectorRetrievalService.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\service\WebhookService.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\util\FileUtils.java
+E:\GIT REPOSITORIOS\Serratec\Marvel-IA\BACKEND\chat-backend\src\main\java\com\project\chat\util\PdfTextExtractor.java

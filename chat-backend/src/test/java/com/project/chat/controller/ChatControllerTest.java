@@ -5,6 +5,7 @@ import com.project.chat.dto.response.ChatResponse;
 import com.project.chat.dto.response.ConversationResponse;
 import com.project.chat.dto.response.HistoryResponse;
 import com.project.chat.service.ChatService;
+import com.project.chat.service.FileStorageService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +31,12 @@ class ChatControllerTest {
     @MockitoBean
     private ChatService chatService;
 
+    @MockitoBean
+    private FileStorageService fileStorageService;
+
     @Test
     void sendMessage_ShouldReturn200() throws Exception {
-        ChatRequest request = new ChatRequest("session-1", null, "Olá", null);
+        ChatRequest request = new ChatRequest("a1b2c3d4-e5f6-7890-abcd-ef1234567890", null, "Olá", null);
         ChatResponse response = new ChatResponse(null, null, 1L);
 
         when(chatService.sendMessage(any(ChatRequest.class))).thenReturn(response);

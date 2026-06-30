@@ -4,6 +4,7 @@ import com.project.chat.entity.Conversation;
 import com.project.chat.entity.Message;
 import com.project.chat.entity.MessageRole;
 import com.project.chat.entity.Session;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -14,6 +15,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
+@Disabled("Requer PostgreSQL + pgvector (VECTOR type incompatível com H2)")
 class MessageRepositoryTest {
 
     @Autowired
