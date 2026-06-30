@@ -1,0 +1,22 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: chat-backend
+
+  profiles:
+    active: rag
+
+chat:
+  version: 2.0.0
+
+  storage:
+    upload-dir: ./uploads
+
+  session:
+    expiration-hours: 24
+
+logging:
+  level:
+    com.project.chat: INFO

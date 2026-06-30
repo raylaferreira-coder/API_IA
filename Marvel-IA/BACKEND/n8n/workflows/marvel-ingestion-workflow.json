@@ -1,0 +1,170 @@
+{
+  "name": "Ingestao Automatica Marvel Fandom + Wikipedia",
+  "nodes": [
+    {
+      "parameters": {
+        "ruleInterval": 15,
+        "ruleIntervalUnits": "minutes"
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://marvel.fandom.com/wiki/Category:Characters",
+        "sendQuery": true,
+        "responseFormat": "text"
+      },
+      "id": "fandom-http",
+      "name": "Fandom Characters",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [450, 200]
+    },
+    {
+      "parameters": {
+        "url": "https://pt.wikipedia.org/w/api.php?action=query&list=categorymembers&cmtitle=Categoria:Personagens_da_Marvel&format=json&cmlimit=10",
+        "sendQuery": true,
+        "responseFormat": "json"
+      },
+      "id": "wikipedia-http",
+      "name": "Wikipedia Marvel",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [450, 450]
+    },
+    {
+      "parameters": {
+        "jsCode": "const fandomHtml = $input.all()[0].json.body;\n\nif (!fandomHtml) {\n  return [{ notice: 'No Fandom data', skip: true }];\n}\n\nconst characterLinks = [];\nconst linkRegex = /<a[^>]+href=\"([^\"]+)\"[^>]*>([^<]+)<\\/a>/gi;\nlet match;\nlet count = 0;\nwhile ((match = linkRegex.exec(fandomHtml)) !== null && count < 20) {\n  const href = match[1];\n  const text = match[2].trim();\n  if (href.startsWith('/wiki/') && !href.includes('Category:') && text.length > 2) {\n    characterLinks.push({\n      url: `https://marvel.fandom.com${href}`,\n      name: text\n    });\n    count++;\n  }\n}\n\nreturn characterLinks;"
+      },
+      "id": "parse-fandom",
+      "name": "Parse Fandom Links",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "const wikiData = $input.all()[0].json;\n\nif (!wikiData || !wikiData.query || !wikiData.query.categorymembers) {\n  return [{ notice: 'No Wikipedia data' }];\n}\n\nreturn wikiData.query.categorymembers\n  .filter(m => m.title && !m.title.includes(':'))\n  .map(m => ({\n    title: m.title,\n    pageid: m.pageid\n  }));"
+      },
+      "id": "parse-wikipedia",
+      "name": "Parse Wikipedia",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 450]
+    },
+    {
+      "parameters": {
+        "url": "https://marvel.fandom.com/api/v1/Articles/AsSimpleJson",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {"name": "title", "value": "={{ $json.name }}"}
+          ]
+        }
+      },
+      "id": "fetch-fandom-article",
+      "name": "Fetch Fandom Article",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [850, 200]
+    },
+    {
+      "parameters": {
+        "url": "https://pt.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=true&explaintext=true&format=json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {"name": "pageids", "value": "={{ $json.pageid }}"}
+          ]
+        }
+      },
+      "id": "fetch-wiki-article",
+      "name": "Fetch Wiki Article",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [850, 450]
+    },
+    {
+      "parameters": {
+        "jsCode": "const fandomData = $input.all()[0].json;\n\nif (!fandomData || !fandomData.sections) {\n  return [{ content: 'Sem dados da Fandom' }];\n}\n\nconst fullText = fandomData.sections\n  .map(s => `${s.title}\\n${(s.content || []).join('\\n')}`)\n  .join('\\n\\n');\n\nreturn [{\n  source: 'marvel_fandom',\n  title: fandomData.title || 'Personagem Marvel',\n  content: fullText.substring(0, 8000),\n  url: `https://marvel.fandom.com/wiki/${encodeURIComponent(fandomData.title || '')}`\n}];"
+      },
+      "id": "extract-fandom-content",
+      "name": "Extract Fandom Content",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1050, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "const wikiData = $input.all()[0].json;\n\nif (!wikiData || !wikiData.query || !wikiData.query.pages) {\n  return [{ content: 'Sem dados da Wikipedia' }];\n}\n\nconst pages = Object.values(wikiData.query.pages);\nreturn pages.map(page => ({\n  source: 'wikipedia',\n  title: page.title,\n  content: (page.extract || '').substring(0, 8000),\n  url: `https://pt.wikipedia.org/wiki/${encodeURIComponent(page.title)}`\n}));"
+      },
+      "id": "extract-wiki-content",
+      "name": "Extract Wiki Content",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1050, 450]
+    },
+    {
+      "parameters": {
+        "url": "http://backend:8080/api/marvel/ingest",
+        "sendQuery": true,
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParameters": {
+          "parameters": [
+            {"name": "source", "value": "={{ $json.source }}"},
+            {"name": "title", "value": "={{ $json.title }}"},
+            {"name": "content", "value": "={{ $json.content }}"},
+            {"name": "url", "value": "={{ $json.url }}"}
+          ]
+        },
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "send-to-backend",
+      "name": "Send to Backend",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1250, 300]
+    }
+  ],
+  "connections": {
+    "Schedule": {
+      "main": [
+        [
+          {"node": "Fandom Characters", "type": "main", "index": 0},
+          {"node": "Wikipedia Marvel", "type": "main", "index": 0}
+        ]
+      ]
+    },
+    "Fandom Characters": {
+      "main": [[{"node": "Parse Fandom Links", "type": "main", "index": 0}]]
+    },
+    "Wikipedia Marvel": {
+      "main": [[{"node": "Parse Wikipedia", "type": "main", "index": 0}]]
+    },
+    "Parse Fandom Links": {
+      "main": [[{"node": "Fetch Fandom Article", "type": "main", "index": 0}]]
+    },
+    "Parse Wikipedia": {
+      "main": [[{"node": "Fetch Wiki Article", "type": "main", "index": 0}]]
+    },
+    "Fetch Fandom Article": {
+      "main": [[{"node": "Extract Fandom Content", "type": "main", "index": 0}]]
+    },
+    "Fetch Wiki Article": {
+      "main": [[{"node": "Extract Wiki Content", "type": "main", "index": 0}]]
+    },
+    "Extract Fandom Content": {
+      "main": [[{"node": "Send to Backend", "type": "main", "index": 0}]]
+    },
+    "Extract Wiki Content": {
+      "main": [[{"node": "Send to Backend", "type": "main", "index": 0}]]
+    }
+  }
+}

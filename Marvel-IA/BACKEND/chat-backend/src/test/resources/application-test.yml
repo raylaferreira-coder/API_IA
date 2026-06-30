@@ -1,0 +1,39 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+rag:
+  ollama:
+    url: http://localhost:11434
+    model: gemma3:4b
+    embedding-model: nomic-embed-text
+    temperature: 0.2
+    max-tokens: 2048
+    connect-timeout: 5s
+    read-timeout: 60s
+  chunking:
+    size: 200
+    overlap: 40
+  webhook:
+    enabled: false
+
+ai:
+  agent:
+    enabled: false
+
+logging:
+  level:
+    com.project.chat: DEBUG
+    org.springframework: WARN
+    org.hibernate.SQL: WARN
