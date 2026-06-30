@@ -1,19 +1,21 @@
 package com.project.chat.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.chat.config.RagWebhookProperties;
-import com.project.chat.entity.DocumentStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpClient.Version;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.chat.config.RagWebhookProperties;
+import com.project.chat.entity.DocumentStatus;
 
 @Service
 public class WebhookService {
@@ -25,7 +27,9 @@ public class WebhookService {
     private final RagWebhookProperties properties;
 
     public WebhookService(RagWebhookProperties properties) {
-        this.httpClient = HttpClient.newHttpClient();
+        this.httpClient = HttpClient.newBuilder()
+                .version(Version.HTTP_1_1)
+                .build();
         this.objectMapper = new ObjectMapper();
         this.properties = properties;
     }
@@ -42,8 +46,7 @@ public class WebhookService {
                 "chunks", chunks,
                 "embeddingModel", "nomic-embed-text",
                 "processingTime", processingTime,
-                "timestamp", LocalDateTime.now().toString()
-        );
+                "timestamp", LocalDateTime.now().toString());
 
         int maxAttempts = Math.max(1, properties.getRetryAttempts());
         int delayMs = Math.max(0, properties.getRetryDelay());

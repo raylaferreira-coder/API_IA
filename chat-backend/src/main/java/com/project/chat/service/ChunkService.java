@@ -48,6 +48,7 @@ public class ChunkService {
             }
 
             chunks.add(normalized.substring(start, end).trim());
+            if (end >= length) break;
             start = end - overlap;
             if (start >= length) break;
         }

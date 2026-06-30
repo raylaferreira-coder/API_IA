@@ -72,7 +72,7 @@ class DocumentIngestionServiceTest {
         assertEquals(DocumentStatus.COMPLETED, result.getStatus());
         verify(urlParser).parseUrl(url);
         verify(documentRepository, atLeast(2)).save(any(Document.class));
-        verify(documentChunkRepository, times(2)).save(any(DocumentChunk.class));
+        verify(documentChunkRepository).saveAll(anyList());
         verify(webhookService).notify(any(), anyString(), eq(DocumentStatus.COMPLETED), eq(2), anyLong());
     }
 

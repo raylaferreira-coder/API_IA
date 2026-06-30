@@ -1,25 +1,5 @@
 package com.project.chat.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.chat.dto.request.ChatRequest;
-import com.project.chat.dto.request.UploadAndAskRequest;
-import com.project.chat.dto.response.ChatResponse;
-import com.project.chat.dto.response.ConversationResponse;
-import com.project.chat.dto.response.HistoryResponse;
-import com.project.chat.dto.response.MessageResponse;
-import com.project.chat.entity.*;
-import com.project.chat.exception.*;
-import com.project.chat.mapper.MessageMapper;
-import com.project.chat.repository.*;
-import com.project.chat.service.parser.ParserFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,6 +13,43 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.chat.dto.request.ChatRequest;
+import com.project.chat.dto.request.UploadAndAskRequest;
+import com.project.chat.dto.response.ChatResponse;
+import com.project.chat.dto.response.ConversationResponse;
+import com.project.chat.dto.response.HistoryResponse;
+import com.project.chat.dto.response.MessageResponse;
+import com.project.chat.entity.Attachment;
+import com.project.chat.entity.Conversation;
+import com.project.chat.entity.Document;
+import com.project.chat.entity.DocumentChunk;
+import com.project.chat.entity.DocumentStatus;
+import com.project.chat.entity.Message;
+import com.project.chat.entity.MessageRole;
+import com.project.chat.entity.Session;
+import com.project.chat.exception.IngestionException;
+import com.project.chat.exception.LlmServiceException;
+import com.project.chat.exception.ResourceNotFoundException;
+import com.project.chat.exception.SessionConflictException;
+import com.project.chat.exception.ValidationException;
+import com.project.chat.mapper.MessageMapper;
+import com.project.chat.repository.AttachmentRepository;
+import com.project.chat.repository.ConversationRepository;
+import com.project.chat.repository.DocumentChunkRepository;
+import com.project.chat.repository.DocumentRepository;
+import com.project.chat.repository.MessageRepository;
+import com.project.chat.repository.SessionRepository;
+import com.project.chat.service.parser.ParserFactory;
 
 @Service
 @Profile("rag")
@@ -67,24 +84,24 @@ public class RagChatService implements ChatService {
     private final TaskService taskService;
 
     public RagChatService(SessionRepository sessionRepository,
-                          ConversationRepository conversationRepository,
-                          MessageRepository messageRepository,
-                          MessageMapper messageMapper,
-                          ConversationService conversationService,
-                          EmbeddingService embeddingService,
-                          RetrievalService retrievalService,
-                          PromptBuilder promptBuilder,
-                          OllamaChatService ollamaChatService,
-                          AttachmentRepository attachmentRepository,
-                          @Value("${rag.topK:5}") int topK,
-                          OllamaVisionService ollamaVisionService,
-                          ParserFactory parserFactory,
-                          DocumentRepository documentRepository,
-                          DocumentChunkRepository documentChunkRepository,
-                           ChunkService chunkService,
-                           WebhookService webhookService,
-                           TaskService taskService,
-                           @Value("${rag.ollama.read-timeout:300s}") Duration readTimeout) {
+            ConversationRepository conversationRepository,
+            MessageRepository messageRepository,
+            MessageMapper messageMapper,
+            ConversationService conversationService,
+            EmbeddingService embeddingService,
+            RetrievalService retrievalService,
+            PromptBuilder promptBuilder,
+            OllamaChatService ollamaChatService,
+            AttachmentRepository attachmentRepository,
+            @Value("${rag.topK:5}") int topK,
+            OllamaVisionService ollamaVisionService,
+            ParserFactory parserFactory,
+            DocumentRepository documentRepository,
+            DocumentChunkRepository documentChunkRepository,
+            ChunkService chunkService,
+            WebhookService webhookService,
+            TaskService taskService,
+            @Value("${rag.ollama.read-timeout:300s}") Duration readTimeout) {
         this.sessionRepository = sessionRepository;
         this.conversationRepository = conversationRepository;
         this.messageRepository = messageRepository;
@@ -168,17 +185,47 @@ public class RagChatService implements ChatService {
         // RAG flow: embedding → retrieval → prompt builder → Ollama → response
         String answer;
         try {
+            log.info("========== INICIO RAG ==========");
+            log.info("Pergunta: {}", content);
+
+            long inicioEmbedding = System.currentTimeMillis();
             float[] questionVector = embeddingService.embed(content);
+            log.info("Embedding concluído em {} ms",
+                    System.currentTimeMillis() - inicioEmbedding);
+
+            long inicioBusca = System.currentTimeMillis();
             List<DocumentChunk> chunks = retrievalService.search(questionVector, topK);
+            log.info("Busca vetorial concluída em {} ms",
+                    System.currentTimeMillis() - inicioBusca);
+
+            log.info("Chunks encontrados: {}", chunks.size());
+
+            long inicioPrompt = System.currentTimeMillis();
             String finalPrompt = promptBuilder.buildWithContext(content, chunks);
+            log.info("Prompt montado em {} ms",
+                    System.currentTimeMillis() - inicioPrompt);
+
+            log.info("Prompt possui {} caracteres", finalPrompt.length());
+
+            long inicioLlm = System.currentTimeMillis();
             answer = ollamaChatService.generate(finalPrompt);
+            log.info("Ollama respondeu em {} ms",
+                    System.currentTimeMillis() - inicioLlm);
+
+            if (answer == null) {
+                throw new LlmServiceException("Ollama retornou resposta vazia.");
+            }
+
+            log.info("Resposta possui {} caracteres", answer.length());
+            log.info("========== FIM RAG ==========");
             if (answer == null) {
                 throw new LlmServiceException("Ollama retornou resposta vazia.");
             }
             log.info("Resposta gerada via RAG ({} caracteres)", answer.length());
         } catch (Exception e) {
             log.error("Fluxo RAG falhou: {}", e.getMessage(), e);
-            throw new LlmServiceException("O serviço de IA local está indisponível. Verifique se o Ollama está em execução.", e);
+            throw new LlmServiceException(
+                    "O serviço de IA local está indisponível. Verifique se o Ollama está em execução.", e);
         }
 
         Message assistantMessage = new Message(conversation, MessageRole.ASSISTANT, answer);
@@ -295,65 +342,63 @@ public class RagChatService implements ChatService {
                 StringBuilder fullAnswer = new StringBuilder();
 
                 ollamaChatService.generateStream(finalPrompt,
-                    token -> {
-                        fullAnswer.append(token);
-                        try {
-                            Map<String, String> event = Map.of("type", "token", "content", token);
-                            emitter.send(SseEmitter.event()
-                                    .name("token")
-                                    .data(objectMapper.writeValueAsString(event)));
-                        } catch (Exception e) {
-                            log.error("Erro ao enviar token SSE: {}", e.getMessage());
-                        }
-                    },
-                    () -> {
-                        try {
-                            String answer = fullAnswer.toString();
-                            Message assistantMessage = new Message(capturedConversation, MessageRole.ASSISTANT, answer);
-                            assistantMessage = messageRepository.save(assistantMessage);
-                            log.info("Resposta completa salva via streaming: id={}", assistantMessage.getId());
+                        token -> {
+                            fullAnswer.append(token);
+                            try {
+                                Map<String, String> event = Map.of("type", "token", "content", token);
+                                emitter.send(SseEmitter.event()
+                                        .name("token")
+                                        .data(objectMapper.writeValueAsString(event)));
+                            } catch (Exception e) {
+                                log.error("Erro ao enviar token SSE: {}", e.getMessage());
+                            }
+                        },
+                        () -> {
+                            try {
+                                String answer = fullAnswer.toString();
+                                Message assistantMessage = new Message(capturedConversation, MessageRole.ASSISTANT,
+                                        answer);
+                                assistantMessage = messageRepository.save(assistantMessage);
+                                log.info("Resposta completa salva via streaming: id={}", assistantMessage.getId());
 
-                            MessageResponse userMsgResponse = messageMapper.toResponse(capturedUserMessage);
-                            MessageResponse assistantMsgResponse = messageMapper.toResponse(assistantMessage);
+                                MessageResponse userMsgResponse = messageMapper.toResponse(capturedUserMessage);
+                                MessageResponse assistantMsgResponse = messageMapper.toResponse(assistantMessage);
 
-                            Map<String, Object> doneEvent = Map.of(
-                                    "type", "done",
-                                    "userMessage", userMsgResponse,
-                                    "assistantMessage", assistantMsgResponse,
-                                    "conversationId", capturedConversation.getId()
-                            );
-                            emitter.send(SseEmitter.event()
-                                    .name("done")
-                                    .data(objectMapper.writeValueAsString(doneEvent)));
-                            emitter.complete();
-                        } catch (Exception e) {
-                            log.error("Erro ao finalizar streaming: {}", e.getMessage());
-                            emitter.completeWithError(e);
-                        }
-                    },
-                    error -> {
-                        log.error("Erro no streaming do Ollama: {}", error.getMessage());
-                        try {
-                            Map<String, String> errorEvent = Map.of(
-                                    "type", "error",
-                                    "content", "Erro ao gerar resposta: " + error.getMessage()
-                            );
-                            emitter.send(SseEmitter.event()
-                                    .name("error")
-                                    .data(objectMapper.writeValueAsString(errorEvent)));
-                        } catch (IOException ex) {
-                            log.error("Erro ao enviar evento de erro SSE: {}", ex.getMessage());
-                        }
-                        emitter.completeWithError(error);
-                    }
-                );
+                                Map<String, Object> doneEvent = Map.of(
+                                        "type", "done",
+                                        "userMessage", userMsgResponse,
+                                        "assistantMessage", assistantMsgResponse,
+                                        "conversationId", capturedConversation.getId());
+                                emitter.send(SseEmitter.event()
+                                        .name("done")
+                                        .data(objectMapper.writeValueAsString(doneEvent)));
+                                emitter.complete();
+                            } catch (Exception e) {
+                                log.error("Erro ao finalizar streaming: {}", e.getMessage());
+                                emitter.completeWithError(e);
+                            }
+                        },
+                        error -> {
+                            log.error("Erro no streaming do Ollama: {}", error.getMessage());
+                            try {
+                                Map<String, String> errorEvent = Map.of(
+                                        "type", "error",
+                                        "content", "Erro ao gerar resposta: " + error.getMessage());
+                                emitter.send(SseEmitter.event()
+                                        .name("error")
+                                        .data(objectMapper.writeValueAsString(errorEvent)));
+                            } catch (IOException ex) {
+                                log.error("Erro ao enviar evento de erro SSE: {}", ex.getMessage());
+                            }
+                            emitter.completeWithError(error);
+                        });
             } catch (Exception e) {
                 log.error("Erro no sendMessageStream: {}", e.getMessage(), e);
                 try {
                     Map<String, String> errorEvent = Map.of(
                             "type", "error",
-                            "content", "O serviço de IA local está indisponível. Verifique se o Ollama está em execução."
-                    );
+                            "content",
+                            "O serviço de IA local está indisponível. Verifique se o Ollama está em execução.");
                     emitter.send(SseEmitter.event()
                             .name("error")
                             .data(objectMapper.writeValueAsString(errorEvent)));
@@ -424,8 +469,7 @@ public class RagChatService implements ChatService {
                 request.getOriginalFileName(),
                 request.getContentType(),
                 request.getFileSize(),
-                request.getStoredFilePath()
-        );
+                request.getStoredFilePath());
         attachment = attachmentRepository.save(attachment);
 
         Message userMessage = new Message(conversation, MessageRole.USER, userMessageContent);
@@ -441,7 +485,8 @@ public class RagChatService implements ChatService {
             log.info("Resposta gerada via upload-and-ask ({} caracteres)", answer.length());
         } catch (Exception e) {
             log.error("Fluxo upload-and-ask falhou: {}", e.getMessage(), e);
-            throw new LlmServiceException("O serviço de IA local está indisponível. Verifique se o Ollama está em execução.", e);
+            throw new LlmServiceException(
+                    "O serviço de IA local está indisponível. Verifique se o Ollama está em execução.", e);
         }
 
         Message assistantMessage = new Message(conversation, MessageRole.ASSISTANT, answer);
@@ -545,17 +590,27 @@ public class RagChatService implements ChatService {
     }
 
     private String detectSourceType(String fileName) {
-        if (fileName == null) return "txt";
+        if (fileName == null)
+            return "txt";
         String lower = fileName.toLowerCase();
-        if (lower.endsWith(".pdf")) return "pdf";
-        if (lower.endsWith(".md") || lower.endsWith(".markdown")) return "markdown";
-        if (lower.endsWith(".html") || lower.endsWith(".htm")) return "html";
-        if (lower.endsWith(".docx")) return "docx";
-        if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "jpg";
-        if (lower.endsWith(".png")) return "png";
-        if (lower.endsWith(".bmp")) return "bmp";
-        if (lower.endsWith(".tiff") || lower.endsWith(".tif")) return "tiff";
-        if (lower.endsWith(".gif")) return "gif";
+        if (lower.endsWith(".pdf"))
+            return "pdf";
+        if (lower.endsWith(".md") || lower.endsWith(".markdown"))
+            return "markdown";
+        if (lower.endsWith(".html") || lower.endsWith(".htm"))
+            return "html";
+        if (lower.endsWith(".docx"))
+            return "docx";
+        if (lower.endsWith(".jpg") || lower.endsWith(".jpeg"))
+            return "jpg";
+        if (lower.endsWith(".png"))
+            return "png";
+        if (lower.endsWith(".bmp"))
+            return "bmp";
+        if (lower.endsWith(".tiff") || lower.endsWith(".tif"))
+            return "tiff";
+        if (lower.endsWith(".gif"))
+            return "gif";
         return "txt";
     }
 

@@ -131,41 +131,36 @@ public class MarvelPromptBuilder {
         return String.format("""
                 %s
 
-                CONHECIMENTO BASE:
+                PERGUNTA DO USUARIO:
                 %s
 
-                PERGUNTA: %s
-
-                RESPONDA de forma completa e detalhada sobre o MCU:
+                Responda de forma completa e detalhada sobre o MCU.
                 """,
                 getSystemPrompt(),
-                getMarvelKnowledge(),
-                question
-        );
+                question);
     }
 
     public String buildPromptWithContext(String question, String context) {
         return String.format("""
                 %s
 
-                CONHECIMENTO BASE:
-                %s
-
                 CONTEXTO EXTRAIDO DOS DOCUMENTOS:
+
                 %s
 
-                PERGUNTA DO USUARIO: %s
+                PERGUNTA DO USUARIO:
 
-                Use o CONTEXTO acima como fonte principal para responder.
-                Se o contexto tiver informacoes, priorize-o.
-                Se o contexto nao tiver informacao suficiente, complemente com seu conhecimento sobre o MCU.
-                Seja detalhista e cite fontes quando possivel.
+                %s
+
+                IMPORTANTE:
+                - Use PRIMEIRO o contexto recuperado dos documentos.
+                - Se o contexto não responder completamente, complemente com seu conhecimento do modelo.
+                - Não invente informações que não estejam no contexto quando ele for suficiente.
+                - Responda em português do Brasil.
                 """,
                 getSystemPrompt(),
-                getMarvelKnowledge(),
                 context,
-                question
-        );
+                question);
     }
 
     public String buildFromRawContext(String question, String rawContext) {
@@ -184,8 +179,7 @@ public class MarvelPromptBuilder {
                 """,
                 getSystemPrompt(),
                 rawContext,
-                question
-        );
+                question);
     }
 
     public String buildSystemPromptOnly() {
@@ -203,8 +197,7 @@ public class MarvelPromptBuilder {
                 Seja objetivo e cite detalhes do texto fornecido.
                 """,
                 chunkContext,
-                question
-        );
+                question);
     }
 
     private String getSystemPrompt() {

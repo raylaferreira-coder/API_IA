@@ -37,7 +37,7 @@ public class ImageOcrParser implements DocumentParser {
         } catch (TesseractException e) {
             log.warn("OCR falhou (Tesseract pode nao estar instalado): {}", e.getMessage());
             return "";
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.warn("Erro inesperado no OCR: {}", e.getMessage());
             return "";
         }

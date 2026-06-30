@@ -20,7 +20,7 @@ public class FileUtils {
             "image/tiff",
             "image/gif"
     );
-    public static final long MAX_FILE_SIZE = 50L * 1024 * 1024;
+    public static final long MAX_FILE_SIZE = 10L * 1024 * 1024;
 
     public static String getExtension(String fileName) {
         if (fileName == null || !fileName.contains(".")) {
