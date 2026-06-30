@@ -1,17 +1,37 @@
 package com.project.chat.ai.config;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
+
+@Component
+@ConfigurationProperties(prefix = "ai.agent")
 public class AiAgentProperties {
 
-    private String baseUrl = "http://localhost:11434";
-    private String model = "gemma3:4b";
-    private String embeddingModel = "nomic-embed-text";
-    private double temperature = 0.7;
-    private int maxTokens = 2048;
-    private int connectTimeout = 5000;
-    private int readTimeout = 120000;
-    private String systemPrompt = "";
-    private String marvelKnowledge = "";
     private boolean enabled = true;
+
+    private String baseUrl = "http://localhost:11434";
+
+    private String model = "gemma3:4b";
+
+    private String embeddingModel = "nomic-embed-text";
+
+    private double temperature = 0.2;
+
+    private int maxTokens = 2048;
+
+    private int connectTimeout = 30000;
+
+    private int readTimeout = 300000;
+
+    private String systemPrompt = "";
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 
     public String getBaseUrl() {
         return baseUrl;
@@ -75,21 +95,5 @@ public class AiAgentProperties {
 
     public void setSystemPrompt(String systemPrompt) {
         this.systemPrompt = systemPrompt;
-    }
-
-    public String getMarvelKnowledge() {
-        return marvelKnowledge;
-    }
-
-    public void setMarvelKnowledge(String marvelKnowledge) {
-        this.marvelKnowledge = marvelKnowledge;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 }

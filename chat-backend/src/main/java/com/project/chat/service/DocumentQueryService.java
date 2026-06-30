@@ -20,6 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class DocumentQueryService {
@@ -94,11 +97,19 @@ public class DocumentQueryService {
         String vectorStr = FileUtils.toVectorString(queryEmbedding);
         List<DocumentChunk> chunks = documentChunkRepository.findSimilarChunks(vectorStr, topK);
 
+        Set<Long> documentIds = chunks.stream()
+                .map(DocumentChunk::getDocumentId)
+                .collect(Collectors.toSet());
+        Map<Long, String> documentNames = documentRepository.findAllById(documentIds).stream()
+                .collect(Collectors.toMap(Document::getId, Document::getFileName));
+
         List<DocumentChunkResponse> results = chunks.stream()
                 .map(chunk -> {
                     DocumentChunkResponse resp = documentMapper.toChunkResponse(chunk);
-                    documentRepository.findById(chunk.getDocumentId())
-                            .ifPresent(doc -> resp.setFileName(doc.getFileName()));
+                    String fileName = documentNames.get(chunk.getDocumentId());
+                    if (fileName != null) {
+                        resp.setFileName(fileName);
+                    }
                     resp.setSimilarityScore(computeSimilarity(queryEmbedding, chunk.getEmbedding()));
                     return resp;
                 })

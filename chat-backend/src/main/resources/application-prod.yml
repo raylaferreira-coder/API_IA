@@ -1,55 +1,24 @@
 spring:
-  # ═══════════════════════════════════════════════
-  # Database — a ser preenchido pelo dev de banco
-  # ═══════════════════════════════════════════════
+
   datasource:
     url: ${DATABASE_URL}
-    driver-class-name: org.postgresql.Driver
     username: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 2
-      connection-timeout: 30000
+    driver-class-name: org.postgresql.Driver
+
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: update
-    show-sql: false
+      ddl-auto: validate
     properties:
       hibernate:
-        format_sql: false
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
 rag:
-  topK: ${RAG_TOP_K:5}
+
   ollama:
-    url: ${RAG_OLLAMA_URL:http://ollama:11434}
-    model: ${OLLAMA_MODEL:llama3.2:3b}
-    embedding-model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
-    connect-timeout: ${OLLAMA_CONNECT_TIMEOUT:10s}
-    read-timeout: ${OLLAMA_READ_TIMEOUT:120s}
-    temperature: ${OLLAMA_TEMPERATURE:0.7}
-    max-tokens: ${OLLAMA_MAX_TOKENS:2048}
-  chunking:
-    size: ${CHUNK_SIZE:800}
-    overlap: ${CHUNK_OVERLAP:120}
-  webhook:
-    url: ${N8N_WEBHOOK_URL:http://n8n:5678/webhook/ingestion-complete}
-    enabled: true
-    retry-attempts: 3
-    retry-delay: 1000
+    url: http://ollama:11434
 
 ai:
-  agent:
-    enabled: true
-    base-url: ${RAG_OLLAMA_URL:http://ollama:11434}
-    model: ${OLLAMA_MODEL:llama3.2:3b}
-    embedding-model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
-    read-timeout: 120000
-    connect-timeout: 10000
-    temperature: ${AI_AGENT_TEMPERATURE:0.7}
-    max-tokens: ${AI_AGENT_MAX_TOKENS:2048}
 
-logging:
-  level:
-    com.project.chat: INFO
+  agent:
+    base-url: http://ollama:11434

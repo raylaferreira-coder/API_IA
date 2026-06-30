@@ -1,55 +1,76 @@
 spring:
-  # ═══════════════════════════════════════════════
-  # Database — a ser preenchido pelo dev de banco
-  # ═══════════════════════════════════════════════
+
   datasource:
-    url: jdbc:postgresql://localhost:5432/chatdb
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/chatdb}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
-    username: postgres
-    password: postgres
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 2
-      connection-timeout: 30000
-      initialization-fail-timeout: 30000
+
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
-    show-sql: false
-    properties:
-      hibernate:
-        format_sql: false
 
 rag:
-  topK: ${RAG_TOP_K:5}
-  ollama:
-    url: ${RAG_OLLAMA_URL:http://localhost:11434}
-    model: ${OLLAMA_MODEL:gemma3:4b}
-    embedding-model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
-    connect-timeout: ${OLLAMA_CONNECT_TIMEOUT:10s}
-    read-timeout: ${OLLAMA_READ_TIMEOUT:120s}
-    temperature: ${OLLAMA_TEMPERATURE:0.7}
-    max-tokens: ${OLLAMA_MAX_TOKENS:4096}
+
+  topK: 1
+
   chunking:
-    size: ${CHUNK_SIZE:1000}
-    overlap: ${CHUNK_OVERLAP:150}
+    size: 800
+    overlap: 120
+
+  ollama:
+
+    url: ${RAG_OLLAMA_URL:http://localhost:11434}
+
+    model: ${OLLAMA_MODEL:gemma3:4b}
+
+    embedding-model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
+
+    temperature: 0.2
+
+    max-tokens: 2048
+
+    connect-timeout: 30s
+
+    read-timeout: 300s
+
   webhook:
+    enabled: false
     url: ${N8N_WEBHOOK_URL:http://localhost:5678/webhook/ingestion-complete}
-    enabled: ${N8N_WEBHOOK_ENABLED:true}
-    retry-attempts: ${N8N_WEBHOOK_RETRY_ATTEMPTS:3}
-    retry-delay: ${N8N_WEBHOOK_RETRY_DELAY:1000}
 
 ai:
-  agent:
-    enabled: true
-    base-url: ${RAG_OLLAMA_URL:http://localhost:11434}
-    model: ${OLLAMA_MODEL:gemma3:4b}
-    read-timeout: 120000
-    connect-timeout: 10000
-    temperature: ${AI_AGENT_TEMPERATURE:0.7}
-    max-tokens: ${AI_AGENT_MAX_TOKENS:2048}
 
-logging:
-  level:
-    com.project.chat: INFO
+  agent:
+
+    enabled: true
+
+    base-url: ${RAG_OLLAMA_URL:http://localhost:11434}
+
+    model: ${OLLAMA_MODEL:gemma3:4b}
+
+    embedding-model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
+
+    temperature: 0.2
+
+    max-tokens: 2048
+
+    connect-timeout: 30000
+
+    read-timeout: 300000
+
+    system-prompt: |
+      Você é um assistente especialista no Universo Marvel.
+
+      Utilize exclusivamente as informações recuperadas pelo sistema RAG.
+
+      Nunca utilize conhecimento próprio.
+
+      Nunca invente fatos.
+
+      Nunca complete informações.
+
+      Nunca misture documentos.
+
+      Se a resposta não estiver presente no contexto responda exatamente:
+
+      Não encontrei essa informação na base de conhecimento.

@@ -23,4 +23,6 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=15 \
   CMD curl -sf http://localhost:8080/api/health/liveness || exit 1
 
-ENTRYPOINT ["java", "-Xmx1g", "-jar", "app.jar"]
+ENV JAVA_OPTS="-Xms512m -Xmx1g"
+
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

@@ -1,13 +1,5 @@
 package com.project.chat.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.chat.exception.LlmServiceException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Service;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URI;
@@ -17,6 +9,15 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Map;
 import java.util.function.Consumer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.chat.exception.LlmServiceException;
 
 @Service
 @Profile("rag")
@@ -33,11 +34,11 @@ public class OllamaChatService {
     private final ObjectMapper objectMapper;
 
     public OllamaChatService(HttpClient httpClient,
-                              @Value("${rag.ollama.url:http://localhost:11434}") String baseUrl,
-                              @Value("${rag.ollama.model:llama3.2}") String model,
-                              @Value("${rag.ollama.temperature:0.7}") double temperature,
-                              @Value("${rag.ollama.max-tokens:2048}") int maxTokens,
-                              @Value("${rag.ollama.read-timeout:120s}") Duration readTimeout) {
+            @Value("${rag.ollama.url:http://localhost:11434}") String baseUrl,
+            @Value("${rag.ollama.model:gemma3:4b}") String model,
+            @Value("${rag.ollama.temperature:0.7}") double temperature,
+            @Value("${rag.ollama.max-tokens:2048}") int maxTokens,
+            @Value("${rag.ollama.read-timeout:120s}") Duration readTimeout) {
         this.httpClient = httpClient;
         this.baseUrl = baseUrl.replaceAll("/+$", "");
         this.model = model;
@@ -56,9 +57,7 @@ public class OllamaChatService {
                     "stream", false,
                     "options", Map.of(
                             "temperature", temperature,
-                            "num_predict", maxTokens
-                    )
-            );
+                            "num_predict", maxTokens));
             String jsonRequest = objectMapper.writeValueAsString(requestBody);
 
             log.debug("Enviando request para Ollama generate: model={}", model);
@@ -107,9 +106,7 @@ public class OllamaChatService {
                     "stream", true,
                     "options", Map.of(
                             "temperature", temperature,
-                            "num_predict", maxTokens
-                    )
-            );
+                            "num_predict", maxTokens));
             String jsonRequest = objectMapper.writeValueAsString(requestBody);
 
             log.debug("Enviando request streaming para Ollama: model={}", model);
@@ -134,7 +131,8 @@ public class OllamaChatService {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(response.body()))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    if (line.trim().isEmpty()) continue;
+                    if (line.trim().isEmpty())
+                        continue;
 
                     @SuppressWarnings("unchecked")
                     Map<String, Object> chunk = objectMapper.readValue(line, Map.class);

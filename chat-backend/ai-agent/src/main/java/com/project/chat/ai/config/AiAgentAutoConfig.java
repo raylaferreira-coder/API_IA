@@ -17,21 +17,9 @@ public class AiAgentAutoConfig {
     private static final Logger log = LoggerFactory.getLogger(AiAgentAutoConfig.class);
 
     @Bean
-    @ConfigurationProperties(prefix = "ai.agent")
-    public AiAgentProperties aiAgentProperties() {
-        return new AiAgentProperties();
-    }
-
-    @Bean
     public OllamaClient ollamaClient(AiAgentProperties properties) {
         log.info("Configurando cliente Ollama em: {}", properties.getBaseUrl());
         return new OllamaClient(properties);
-    }
-
-    @Bean
-    public MarvelPromptBuilder marvelPromptBuilder(AiAgentProperties properties) {
-        log.info("Inicializando MarvelPromptBuilder com modelo: {}", properties.getModel());
-        return new MarvelPromptBuilder(properties);
     }
 
     @Bean

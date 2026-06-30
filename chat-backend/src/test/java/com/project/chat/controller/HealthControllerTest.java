@@ -8,6 +8,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import javax.sql.DataSource;
+import java.net.http.HttpClient;
 
 import static org.mockito.Mockito.when;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -25,6 +26,9 @@ class HealthControllerTest {
 
     @MockitoBean
     private DataSource dataSource;
+
+    @MockitoBean
+    private HttpClient httpClient;
 
     @Test
     void health_WhenDatabaseIsUp_ShouldReturn200() throws Exception {

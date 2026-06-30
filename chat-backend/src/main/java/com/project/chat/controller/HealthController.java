@@ -37,9 +37,9 @@ public class HealthController {
     @Value("${chat.version:1.0.0}")
     private String version;
 
-    public HealthController(DataSource dataSource) {
+    public HealthController(DataSource dataSource, HttpClient ollamaHttpClient) {
         this.dataSource = dataSource;
-        this.httpClient = HttpClient.newHttpClient();
+        this.httpClient = ollamaHttpClient;
     }
 
     @GetMapping("/health")
@@ -105,6 +105,49 @@ public class HealthController {
                 dbStatus,
                 dbStatus,
                 "SKIPPED",
+                "N/A",
+                LocalDateTime.now(),
+                version
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/health/readiness")
+    public ResponseEntity<HealthResponse> readiness() {
+        String dbStatus = "UP";
+        try (Connection conn = dataSource.getConnection()) {
+            if (!conn.isValid(2)) {
+                dbStatus = "DOWN";
+            }
+        } catch (Exception e) {
+            dbStatus = "DOWN";
+        }
+
+        String ollamaStatus = "UP";
+        try {
+            String normalizedUrl = ollamaBaseUrl.replaceAll("/+$", "") + "/api/tags";
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(normalizedUrl))
+                    .timeout(ollamaHealthTimeout)
+                    .GET()
+                    .build();
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                ollamaStatus = "DOWN";
+            }
+        } catch (Exception e) {
+            ollamaStatus = "DOWN";
+        }
+
+        boolean dbUp = dbStatus.equals("UP");
+        boolean ollamaUp = ollamaStatus.equals("UP");
+        String overallStatus = dbUp && ollamaUp ? "UP" : dbUp ? "DEGRADED" : "DOWN";
+
+        HealthResponse response = new HealthResponse(
+                overallStatus,
+                dbStatus,
+                ollamaStatus,
                 "N/A",
                 LocalDateTime.now(),
                 version

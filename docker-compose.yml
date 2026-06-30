@@ -105,11 +105,31 @@ services:
       MARVEL_API_PUBLIC_KEY: ""
       MARVEL_API_PRIVATE_KEY: ""
 
+    volumes:
+      - ./knowledge:/app/knowledge
+
     depends_on:
       postgres:
         condition: service_healthy
       ollama:
         condition: service_started
+
+    networks:
+      - marvel-net
+
+  frontend:
+    build:
+      context: ../FRONTEND/chat-frontend
+      dockerfile: Dockerfile
+
+    container_name: chat-frontend
+    restart: unless-stopped
+
+    ports:
+      - "3000:80"
+
+    depends_on:
+      - backend
 
     networks:
       - marvel-net
