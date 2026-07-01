@@ -79,14 +79,84 @@ BACKEND/
 ### Com Docker
 
 ```bash
-# Subir todos os serviços
+faça download do repositório Back-end : https://github.com/raylaferreira-coder/API_IA.git
+e Front-end: https://github.com/LeonamNgr/Trabalho-Inteligencia-Artificial-GenIA---Front-end-Grupo-5.git
+
+Crie uma pasta com nome Marvel-IA, dentro cria duas pastas " BACKEND " E " FRONTEND " DENTRO DE FRONTEND CRIA UMA SEGUNDA PASTA COM MESMO NOME.
+
+Dentro da segunda pasta " FRONTEND ", colo os arquicvos que baixou do repositorio do git, tudo que estiver dentro de Trabalho-Inteligencia-Artificial-GenIA---Front-end-Grupo-5, abra pasta chat-frontend, dentro dessa pasta abra um novo terminal e execute o comando   npm install
+
+Apois baixar o repositorio do back-end, copie tudo que esta dentro da pasta API_IA, e cole na pasta que voce criou "BACKEND" .
+
+FEITO ISSO : 
+
+1.  Abra o PowerShell.
+
+2.  Vá até a pasta onde está o docker-compose.yml:
+
+Marvel-IA\BACKEND
+
+
+3. Inicie os serviços:
+
 docker compose up -d
 
-# Verificar logs
-docker compose logs -f
 
-# Parar
+4.  Verifique os containers:
+
+docker ps
+
+Containers esperados: - postgres-marvel - ollama-marvel - n8n-marvel -
+chat-backend - chat-frontend
+
+5.  Veja os logs do backend:
+
+docker logs -f chat-backend
+
+Quando aparecer: Started ChatApplication Tomcat started on port(s): 8080
+
+pressione Ctrl+C.
+
+6.  Teste o backend:
+
+curl http://localhost:8080/api/health
+
+curl http://localhost:8080/api/health/liveness
+
+7.  Verifique os modelos do Ollama:
+
+docker exec -it ollama-marvel ollama list
+
+Modelos esperados: - gemma3:4b - nomic-embed-text
+
+8. Abra o frontend:
+
+http://localhost:3000
+
+9. Faça um teste funcional:
+
+-   Criar sessão
+-   Enviar pergunta
+-   Verificar resposta
+-   Testar upload de PDF
+-   Testar upload de imagem
+-   Consultar histórico
+
+10. Se alterar o código novamente:
+
 docker compose down
+
+docker compose build –no-cache
+
+docker compose up -d
+
+11. Se quiser apenas reiniciar:
+
+docker compose restart
+
+12. Para remover containers e volumes (apaga os dados):
+
+docker compose down -v
 ```
 
 ### Local (sem Docker)
